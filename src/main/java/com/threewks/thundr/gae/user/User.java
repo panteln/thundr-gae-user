@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -178,7 +179,7 @@ public class User {
 	protected byte[] randomise(int bytes) {
 		try {
 			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			random.setSeed(System.currentTimeMillis());
+			random.setSeed(UUID.randomUUID().toString().getBytes());
 			byte[] data = new byte[bytes];
 			random.nextBytes(data);
 			return data;
