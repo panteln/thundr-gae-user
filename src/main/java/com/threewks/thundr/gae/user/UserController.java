@@ -39,7 +39,7 @@ public class UserController {
 		this.userService = userService;
 		this.loginPath = userLoginPath;
 	}
-	
+
 	public RedirectView login(String username, String password, String r, HttpServletResponse resp) {
 		Logger.info("%s is attempting to login", username);
 
@@ -50,8 +50,8 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		UserToken userToken = userService.login(username, password, resp);
-		if (userToken == null) {
+		boolean success = userService.login(username, password, resp);
+		if (!success) {
 			return redirectOnError(r, "l", "no");
 		}
 		return new RedirectView(StringUtils.isEmpty(r) ? "/" : r);

@@ -41,6 +41,7 @@ import com.threewks.thundr.search.google.SearchRequest;
 import com.threewks.thundr.search.google.SearchService;
 
 public class UserServiceImpl implements UserService {
+	private static final int SixtyDaysInSeconds = DateTimeConstants.SECONDS_PER_DAY * 60;
 	private SearchService searchService;
 
 	public UserServiceImpl(SearchService searchService) {
@@ -70,23 +71,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserToken login(String username, String password, HttpServletResponse resp) {
+	public boolean login(String username, String password, HttpServletResponse resp) {
 		User user = get(username);
 		if (user != null && user.passwordMatches(password)) {
 			return loginInternal(resp, user);
 		}
 		clearAuthCookies(resp);
-		return null;
+		return false;
 	}
 
 	@Override
-	public UserToken login(String username, HttpServletResponse resp) {
+	public boolean login(String username, HttpServletResponse resp) {
 		User user = get(username);
 		if (user != null) {
 			return loginInternal(resp, user);
 		}
 		clearAuthCookies(resp);
-		return null;
+		return false;
 	}
 
 	public void logout(User user, HttpServletResponse resp) {
@@ -116,7 +117,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User getUserFromRequest(HttpServletRequest req) {
-		Cookie authCookie = getAuthCookie(req);
+		String cookieName = req.isSecure() ? SecureAuthCookie : InsecureAuthCookie;
+		Cookie authCookie = getCookie(req, cookieName);
 		String token = authCookie == null ? null : authCookie.getValue();
 		return token == null ? null : getUserFromToken(token);
 	}
@@ -147,41 +149,36 @@ public class UserServiceImpl implements UserService {
 		return Expressive.Transformers.transformAllUsing(Expressive.Transformers.usingLookup(results)).from(ids);
 	}
 
-	private UserToken loginInternal(HttpServletResponse resp, User user) {
+	private boolean loginInternal(HttpServletResponse resp, User user) {
 		expireTokens(user);
-		UserToken token = createToken(user);
-		storeAuthCookie(resp, token);
+		UserToken secureToken = createToken(user);
+		UserToken insecureToken = createToken(user);
+		storeAuthCookies(resp, secureToken, insecureToken);
 		user.loggedIn();
 		put(user);
-		return token;
+		return true;
 	}
 
-	public static void storeAuthCookie(HttpServletResponse resp, UserToken userToken) {
-		boolean secure = secure();
-		Cookie cookie = new Cookie(AuthCookie, userToken.getToken());
-		cookie.setMaxAge(DateTimeConstants.SECONDS_PER_DAY);
-		cookie.setPath("/");
-		cookie.setSecure(secure);
-		resp.addCookie(cookie);
-
-		Cookie signedInCookie = new Cookie(SignedInCookie, "true");
-		signedInCookie.setMaxAge(DateTimeConstants.SECONDS_PER_DAY);
-		signedInCookie.setPath("/");
-		resp.addCookie(signedInCookie);
+	public static void storeAuthCookies(HttpServletResponse resp, UserToken secureToken, UserToken insecureToken) {
+		Cookie secureCookie = cookie(SecureAuthCookie, secureToken.getToken(), secure(), SixtyDaysInSeconds);
+		Cookie insecureCookie = cookie(InsecureAuthCookie, insecureToken.getToken(), false, SixtyDaysInSeconds);
+		resp.addCookie(secureCookie);
+		resp.addCookie(insecureCookie);
 	}
 
 	public static void clearAuthCookies(HttpServletResponse resp) {
-		boolean secure = secure();
-		Cookie cookie = new Cookie(AuthCookie, "");
-		cookie.setMaxAge(0);
+		Cookie secureCookie = cookie(SecureAuthCookie, "", secure(), 0);
+		Cookie insecureCookie = cookie(InsecureAuthCookie, "", false, 0);
+		resp.addCookie(secureCookie);
+		resp.addCookie(insecureCookie);
+	}
+
+	private static Cookie cookie(String name, String value, boolean secure, int durationSeconds) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(durationSeconds);
 		cookie.setPath("/");
 		cookie.setSecure(secure);
-		resp.addCookie(cookie);
-
-		Cookie signedInCookie = new Cookie(SignedInCookie, "");
-		signedInCookie.setMaxAge(0);
-		signedInCookie.setPath("/");
-		resp.addCookie(signedInCookie);
+		return cookie;
 	}
 
 	private static boolean secure() {
@@ -192,11 +189,11 @@ public class UserServiceImpl implements UserService {
 		return secure;
 	}
 
-	private static Cookie getAuthCookie(HttpServletRequest req) {
+	private static Cookie getCookie(HttpServletRequest req, String name) {
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
-				if (AuthCookie.equals(cookie.getName())) {
+				if (name.equals(cookie.getName())) {
 					return cookie;
 				}
 			}

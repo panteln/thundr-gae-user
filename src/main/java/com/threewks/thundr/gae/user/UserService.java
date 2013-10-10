@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UserService {
-	public static String AuthCookie = "__userAuth";
-	public static String SignedInCookie = "__userSignedIn";
+	public static String SecureAuthCookie = "__userAuth";
+	public static String InsecureAuthCookie = "__user";
 
 	public User get(String username);
 
@@ -38,16 +38,17 @@ public interface UserService {
 	 * @param username
 	 * @param password
 	 * @param resp
+	 * @return true if login was 
 	 */
-	public UserToken login(String username, String password, HttpServletResponse resp);
+	public boolean login(String username, String password, HttpServletResponse resp);
 
 	/**
 	 * Log in the given user
-	 * @param email
+	 * @param username
 	 * @param resp
-	 * @return
+	 * @return true if login was successful
 	 */
-	public UserToken login(String email, HttpServletResponse resp);
+	public boolean login(String username, HttpServletResponse resp);
 
 	public void logout(User user, HttpServletResponse resp);
 
