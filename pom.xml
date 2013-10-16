@@ -5,7 +5,7 @@
 		<version>3</version>
 	</parent>
 	<artifactId>thundr-gae-user</artifactId>
-	<version>0.9.10-SNAPSHOT</version>
+	<version>0.9.11-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>thundr-gae-user</name>
 	<description>A thundr module for supporting basic user accounts on thundr-gae</description>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>com.threewks.thundr</groupId>
 			<artifactId>thundr-gae</artifactId>
-			<version>0.9.10</version>
+			<version>0.9.11</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -81,13 +81,13 @@
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-stubs</artifactId>
-			<version>1.8.2</version>
+			<version>1.8.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-testing</artifactId>
-			<version>1.8.2</version>
+			<version>1.8.4</version>
 			<scope>test</scope>
 		</dependency>
 
