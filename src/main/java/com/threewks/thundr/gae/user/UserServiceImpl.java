@@ -33,7 +33,7 @@ import org.joda.time.DateTimeConstants;
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.Expressive;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.VoidWork;
 import com.threewks.thundr.configuration.Environment;
 import com.threewks.thundr.gae.user.User.Fields;
@@ -201,8 +201,8 @@ public class UserServiceImpl implements UserService {
 		return null;
 	}
 
-	public static void registerObjectifyClasses() {
-		ObjectifyService.register(User.class);
-		ObjectifyService.register(UserToken.class);
+	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
+		objectifyFactory.register(User.class);
+		objectifyFactory.register(UserToken.class);
 	}
 }

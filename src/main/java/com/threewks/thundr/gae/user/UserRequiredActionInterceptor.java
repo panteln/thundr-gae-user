@@ -50,7 +50,7 @@ public class UserRequiredActionInterceptor implements ActionInterceptor<UserRequ
 	}
 
 	@Override
-	public <T> T after(UserRequired annotation, HttpServletRequest req, HttpServletResponse resp) {
+	public <T> T after(UserRequired annotation, Object result, HttpServletRequest req, HttpServletResponse resp) {
 		return null;
 	}
 

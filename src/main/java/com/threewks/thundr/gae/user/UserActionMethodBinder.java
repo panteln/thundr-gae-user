@@ -25,15 +25,19 @@ import javax.servlet.http.HttpServletResponse;
 import com.threewks.thundr.action.method.bind.ActionMethodBinder;
 import com.threewks.thundr.introspection.ParameterDescription;
 
-public class UserParameterBinder implements ActionMethodBinder {
+public class UserActionMethodBinder implements ActionMethodBinder {
 	private UserService userService;
+
+	public UserActionMethodBinder(UserService userService) {
+		this.userService = userService;
+	}
 
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		for (ParameterDescription parameter : bindings.keySet()) {
-			if (parameter.isA(User.class)) {
+		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
+			if (binding.getKey().isA(User.class) && binding.getValue() == null) {
 				User user = userService.getUserFromRequest(req);
-				bindings.put(parameter, user);
+				bindings.put(binding.getKey(), user);
 			}
 		}
 	}

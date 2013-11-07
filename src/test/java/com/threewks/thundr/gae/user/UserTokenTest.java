@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.googlecode.objectify.Key;
+import com.threewks.thundr.gae.SetupAppengine;
+import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.test.TestSupport;
 
 public class UserTokenTest {
@@ -46,6 +48,5 @@ public class UserTokenTest {
 		assertThat(key.getKind(), is("UserToken"));
 		assertThat(key.getParent().getName(), is("test"));
 		assertThat(key.getParent().getKind(), is("thundrUser"));
-
 	}
 }

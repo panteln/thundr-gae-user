@@ -17,47 +17,59 @@
  */
 package com.threewks.thundr.gae.user;
 
-import static com.atomicleopard.expressive.Expressive.list;
-
+import com.googlecode.objectify.ObjectifyFactory;
+import com.googlecode.objectify.ObjectifyService;
 import com.threewks.thundr.action.method.ActionInterceptorRegistry;
-import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
+import com.threewks.thundr.gae.GaeInjectionConfiguration;
+import com.threewks.thundr.injection.BaseInjectionConfiguration;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
-import com.threewks.thundr.search.google.GoogleSearchService;
-import com.threewks.thundr.search.google.SearchService;
 
-public class UserInjectionConfiguration implements InjectionConfiguration {
+public class UserInjectionConfiguration extends BaseInjectionConfiguration {
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(GaeInjectionConfiguration.class);
+	}
+
+	@Override
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
+		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
+	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
-		ensureSearchService(injectionContext);
-
-		// TODO - NAO - after thundr is released next, then this will be a good option
-		// ActionMethodBinderRegistry registry = null;
-		ActionInterceptorRegistry actionInterceptorRegistry = injectionContext.get(ActionInterceptorRegistry.class);
-		Routes routes = injectionContext.get(Routes.class);
-
-		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
-		UserServiceImpl.registerObjectifyClasses();
+		super.configure(injectionContext);
 
 		UserService userService = injectionContext.get(UserService.class);
 		String userLoginPath = injectionContext.get(String.class, "userLoginPath");
 
-		actionInterceptorRegistry.registerInterceptor(UserRequired.class, new UserRequiredActionInterceptor(userService, userLoginPath));
-		actionInterceptorRegistry.registerInterceptor(BindUser.class, new BindUserActionInterceptor(userService));
+		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
+		UserActionMethodBinder userActionMethodBinder = new UserActionMethodBinder(userService);
+		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
+		
+		ActionInterceptorRegistry actionInterceptorRegistry = injectionContext.get(ActionInterceptorRegistry.class);
+		UserRequiredActionInterceptor interceptor = new UserRequiredActionInterceptor(userService, userLoginPath);
+		actionInterceptorRegistry.registerInterceptor(UserRequired.class, interceptor);
 
-		Route login = new Route("/_user/login", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Login), RouteType.POST);
-		Route logout = new Route("/_user/logout", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Logout), RouteType.POST);
-		routes.addRoutes(list(login, logout));
+		configureObjectify(injectionContext);
 	}
 
-	private void ensureSearchService(UpdatableInjectionContext injectionContext) {
-		SearchService searchService = injectionContext.get(SearchService.class);
-		if (searchService == null) {
-			injectionContext.inject(GoogleSearchService.class).as(SearchService.class);
-		}
+	public void start(UpdatableInjectionContext injectionContext) {
+		Routes routes = injectionContext.get(Routes.class);
+		Route login = new Route("/_user/login", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Login), RouteType.POST);
+		Route logout = new Route("/_user/logout", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Logout), RouteType.POST);
+		routes.addRoutes(login, logout);
+	}
+
+	private void configureObjectify(UpdatableInjectionContext injectionContext) {
+		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
+		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
 	}
 
 }
