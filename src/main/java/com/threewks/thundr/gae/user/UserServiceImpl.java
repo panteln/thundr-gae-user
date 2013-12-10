@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.Duration;
 
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.Expressive;
@@ -37,6 +38,7 @@ import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.VoidWork;
 import com.threewks.thundr.configuration.Environment;
 import com.threewks.thundr.gae.user.User.Fields;
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.search.google.SearchRequest;
 import com.threewks.thundr.search.google.SearchService;
 
@@ -118,7 +120,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User getUserFromRequest(HttpServletRequest req) {
 		String cookieName = req.isSecure() ? SecureAuthCookie : InsecureAuthCookie;
-		Cookie authCookie = getCookie(req, cookieName);
+		Cookie authCookie = Cookies.getCookie(cookieName, req);
 		String token = authCookie == null ? null : authCookie.getValue();
 		return token == null ? null : getUserFromToken(token);
 	}
@@ -174,11 +176,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private static Cookie cookie(String name, String value, boolean secure, int durationSeconds) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setMaxAge(durationSeconds);
-		cookie.setPath("/");
-		cookie.setSecure(secure);
-		return cookie;
+		return Cookies.build(name).withValue(value).withSecure(secure).withExpires(Duration.standardSeconds(durationSeconds)).withPath("/").build();
 	}
 
 	private static boolean secure() {
@@ -187,18 +185,6 @@ public class UserServiceImpl implements UserService {
 			secure = false;
 		}
 		return secure;
-	}
-
-	private static Cookie getCookie(HttpServletRequest req, String name) {
-		Cookie[] cookies = req.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (name.equals(cookie.getName())) {
-					return cookie;
-				}
-			}
-		}
-		return null;
 	}
 
 	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {

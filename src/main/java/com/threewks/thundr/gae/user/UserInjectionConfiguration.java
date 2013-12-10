@@ -20,12 +20,12 @@ package com.threewks.thundr.gae.user;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.threewks.thundr.action.method.ActionInterceptorRegistry;
+import com.threewks.thundr.action.method.MethodAction;
 import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
 import com.threewks.thundr.gae.GaeInjectionConfiguration;
 import com.threewks.thundr.injection.BaseInjectionConfiguration;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
-import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
 
@@ -52,7 +52,7 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
 		UserActionMethodBinder userActionMethodBinder = new UserActionMethodBinder(userService);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
-		
+
 		ActionInterceptorRegistry actionInterceptorRegistry = injectionContext.get(ActionInterceptorRegistry.class);
 		UserRequiredActionInterceptor interceptor = new UserRequiredActionInterceptor(userService, userLoginPath);
 		actionInterceptorRegistry.registerInterceptor(UserRequired.class, interceptor);
@@ -62,9 +62,8 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 
 	public void start(UpdatableInjectionContext injectionContext) {
 		Routes routes = injectionContext.get(Routes.class);
-		Route login = new Route("/_user/login", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Login), RouteType.POST);
-		Route logout = new Route("/_user/logout", String.format("%s.%s", UserController.class.getName(), UserController.Methods.Logout), RouteType.POST);
-		routes.addRoutes(login, logout);
+		routes.addRoute(RouteType.POST, "/_user/login", null, new MethodAction(UserController.class, UserController.Methods.Login));
+		routes.addRoute(RouteType.POST, "/_user/logout", null, new MethodAction(UserController.class, UserController.Methods.Logout));
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {

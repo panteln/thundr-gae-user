@@ -38,6 +38,9 @@ public class UserActionMethodBinder implements ActionMethodBinder {
 			if (binding.getKey().isA(User.class) && binding.getValue() == null) {
 				User user = userService.getUserFromRequest(req);
 				bindings.put(binding.getKey(), user);
+				if(user == null){
+					userService.logout(user, resp);
+				}
 			}
 		}
 	}
