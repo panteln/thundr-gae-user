@@ -38,17 +38,19 @@
 		<url>https://github.com/3wks/thundr-gae-user</url>
 		<tag>HEAD</tag>
 	</scm>
-	
-	<properties>
-		<appengine.version>1.8.7</appengine.version>
-	</properties>
+
+
+    <properties>
+        <gae.version>1.8.7</gae.version>
+        <thundr.version>1.0-SNAPSHOT</thundr.version>
+    </properties>
 
 	<dependencies>
 		<!-- thundr dependency -->
 		<dependency>
 			<groupId>com.threewks.thundr</groupId>
 			<artifactId>thundr-gae</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${thundr.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -79,19 +81,19 @@
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-stubs</artifactId>
-			<version>${appengine.version}</version>
+			<version>${gae.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-testing</artifactId>
-			<version>${appengine.version}</version>
+			<version>${gae.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.threewks.thundr</groupId>
 			<artifactId>thundr-gae</artifactId>
-			<version>1.0-SNAPSHOT</version>
+            <version>${thundr.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
