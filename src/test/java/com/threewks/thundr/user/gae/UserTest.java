@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -43,18 +43,6 @@ public class UserTest {
 		User user = new User("username");
 		assertThat(user.getUsername(), is("username"));
 		assertThat(user.getCreated(), is(now));
-		assertThat(user.passwordMatches(null), is(true));
-		assertThat(user.getLastLogin(), is(nullValue()));
-		assertThat(user.getProperties().isEmpty(), is(true));
-	}
-
-	@Test
-	public void shouldCreateWithUsernameAndPassword() {
-		User user = new User("username", "password");
-		assertThat(user.getUsername(), is("username"));
-		assertThat(user.getCreated(), is(now));
-		assertThat(user.passwordMatches(null), is(false));
-		assertThat(user.passwordMatches("password"), is(true));
 		assertThat(user.getLastLogin(), is(nullValue()));
 		assertThat(user.getProperties().isEmpty(), is(true));
 	}
@@ -85,9 +73,10 @@ public class UserTest {
 		assertThat(user.getEmail(), is("user@domain.com"));
 		assertThat(user.getEmailUser(), is("user"));
 		assertThat(user.getEmailDomain(), is("domain.com"));
-		
-		assertThat(user.withEmail("other@different.co.uk"), is(user));;
-		
+
+		assertThat(user.withEmail("other@different.co.uk"), is(user));
+		;
+
 		assertThat(user.getEmail(), is("other@different.co.uk"));
 		assertThat(user.getEmailUser(), is("other"));
 		assertThat(user.getEmailDomain(), is("different.co.uk"));
@@ -97,48 +86,27 @@ public class UserTest {
 	public void shouldAllowStoringOfStringProperties() {
 		User user = new User();
 		assertThat(user.getProperties().isEmpty(), is(true));
-		
+
 		user.setProperty("key", "value");
 		assertThat(user.getProperties().isEmpty(), is(false));
 		assertThat(user.getProperty("key"), is("value"));
 
 		assertThat(user.withProperty("key", "new value"), is(user));
 		assertThat(user.getProperty("key"), is("new value"));
-		
+
 		assertThat(user.removeProperty("key"), is(user));
 		assertThat(user.getProperty("key"), is(nullValue()));
 		assertThat(user.getProperties().isEmpty(), is(true));
 	}
-	
+
 	@Test
 	public void shouldUpdateLastLoginTime() {
 		User user = new User();
 		assertThat(user.getLastLogin(), is(nullValue()));
-		
-		user.loggedIn();
-		
+
+		user.setLastLogin(new DateTime());
+
 		assertThat(user.getLastLogin(), is(notNullValue()));
 	}
-	
-	@Test
-	public void shouldHashAndUpdateUserPassword() {
-		User user = new User("username", "password1");
-		assertThat(user.passwordMatches("password1"), is(true));
-		
-		user.updatePassword("password2");
-		assertThat(user.passwordMatches("password1"), is(false));
-		assertThat(user.passwordMatches("password2"), is(true));
-	}
-	
-	@Test
-	public void shouldGenerateNewSaltEverytime() {
-		User user = new User();
-		byte[] result1 = user.randomise(8);
-		byte[] result2 = user.randomise(8);
-		byte[] result3 = user.randomise(8);
-		assertThat(result1, is(not(result2)));
-		assertThat(result1, is(not(result3)));
-		assertThat(result2, is(not(result3)));
-		
-	}
+
 }

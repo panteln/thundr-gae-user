@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -27,6 +27,8 @@ import com.googlecode.objectify.Key;
 import com.threewks.thundr.gae.SetupAppengine;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.test.TestSupport;
+import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserToken;
 
 public class UserTokenTest {
 	@Rule

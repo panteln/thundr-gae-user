@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
@@ -28,6 +28,7 @@ import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
+import com.threewks.thundr.user.UserActionMethodBinder;
 
 public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 	@Override
@@ -40,6 +41,7 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
 		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
+		injectionContext.inject(UserServiceImpl.class).as(com.threewks.thundr.user.UserService.class);
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 		String userLoginPath = injectionContext.get(String.class, "userLoginPath");
 
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
-		UserActionMethodBinder userActionMethodBinder = new UserActionMethodBinder(userService);
+		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
 
 		ActionInterceptorRegistry actionInterceptorRegistry = injectionContext.get(ActionInterceptorRegistry.class);
@@ -58,6 +60,7 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 		actionInterceptorRegistry.registerInterceptor(UserRequired.class, interceptor);
 
 		configureObjectify(injectionContext);
+
 	}
 
 	public void start(UpdatableInjectionContext injectionContext) {

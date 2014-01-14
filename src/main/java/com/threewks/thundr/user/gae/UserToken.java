@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
@@ -47,6 +47,11 @@ public class UserToken {
 
 	public String getToken() {
 		return Key.create(user.getKey(), UserToken.class, id).getString();
+	}
+
+	public Key<UserToken> getKey() {
+		Key<User> parentKey = user.getKey();
+		return Key.create(parentKey, UserToken.class, id);
 	}
 
 }

@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import static com.atomicleopard.expressive.Expressive.list;
 
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -34,13 +34,9 @@ import com.googlecode.objectify.annotation.EmbedMap;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
-import com.threewks.thundr.exception.BaseException;
-import com.threewks.thundr.util.Encoder;
 
 @Entity(name = "thundrUser")
-public class User {
-	private static final int HASH_ITERATIONS = 10;
-
+public class User implements com.threewks.thundr.user.User {
 	public static class Fields {
 		public static final String Email = "email";
 		public static final String Username = "username";
@@ -51,34 +47,23 @@ public class User {
 		public static final String EmailDomain = null;
 	}
 
-	@Id
-	@Index
-	protected String username;
-	@Index
-	protected String email;
-	@Index
-	protected List<String> roles = new ArrayList<>();
+	@Id @Index protected String username;
+	@Index protected String email;
+	@Index protected Set<String> roles = new LinkedHashSet<>();
 
 	protected String hashedPassword;
 	protected byte[] salt;
 	protected Long lastLogin;
 	protected Long createdAt;
-	@EmbedMap
-	protected Map<String, String> props = new HashMap<>();
+	@EmbedMap protected Map<String, String> props = new HashMap<>();
 
 	User() {
 
 	}
 
 	public User(String username) {
-		this(username, null);
-	}
-
-	public User(String username, String password) {
 		this.username = StringUtils.trimToEmpty(username);
 		this.createdAt = new DateTime().getMillis();
-		this.salt = randomise(8);
-		this.hashedPassword = password == null ? null : hash(password);
 	}
 
 	public String getUsername() {
@@ -115,6 +100,10 @@ public class User {
 		return this;
 	}
 
+	public String getHashedPassword() {
+		return hashedPassword;
+	}
+
 	public Map<String, String> getProperties() {
 		return props;
 	}
@@ -145,47 +134,44 @@ public class User {
 		return lastLogin == null ? null : new DateTime(lastLogin);
 	}
 
-	public void loggedIn() {
-		this.lastLogin = new DateTime().getMillis();
+	@Override
+	public void setLastLogin(DateTime lastLogin) {
+		this.lastLogin = lastLogin.getMillis();
 	}
 
-	public User updatePassword(String password) {
-		this.hashedPassword = hash(password);
-		return this;
+	@Override
+	public Set<String> getRoles() {
+		return roles;
 	}
 
-	public boolean passwordMatches(String passwordToMatch) {
-		return StringUtils.equals(hashedPassword, hash(passwordToMatch));
+	@Override
+	public void setRoles(Collection<String> roles) {
+		roles = new LinkedHashSet<>(roles);
 	}
 
-	protected String hash(String password) {
-		if (password == null) {
-			return null;
-		}
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-512");
-			digest.update(salt);
-			byte[] input = digest.digest(password.getBytes("UTF-8"));
-			for (int i = 0; i < HASH_ITERATIONS; i++) {
-				digest.reset();
-				input = digest.digest(input);
-			}
-			return new Encoder(input).base64().string();
-		} catch (Exception e) {
-			throw new BaseException(e, "Failed to hash password: %s", e.getMessage());
-		}
+	@Override
+	public boolean hasRole(String role) {
+		return roles.contains(role);
 	}
 
-	protected byte[] randomise(int bytes) {
-		try {
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			random.setSeed(UUID.randomUUID().toString().getBytes());
-			byte[] data = new byte[bytes];
-			random.nextBytes(data);
-			return data;
-		} catch (Exception e) {
-			throw new BaseException(e, "Failed to generate salt: %s", e.getMessage());
-		}
+	@Override
+	public boolean hasRoles(String... roles) {
+		return hasRoles(Arrays.asList(roles));
+	}
+
+	@Override
+	public boolean hasRoles(Collection<String> roles) {
+		return this.roles.containsAll(roles);
+	}
+
+	@Override
+	public void addRole(String role) {
+		this.roles.add(role);
+	}
+
+	@Override
+	public void removeRole(String role) {
+		this.roles.remove(role);
 	}
 
 	private static final List<String> DefaultFieldsToIndex = list(Fields.Username, Fields.Email, Fields.EmailUser, Fields.EmailDomain, Fields.Roles, Fields.Created);

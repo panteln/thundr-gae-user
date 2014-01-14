@@ -15,50 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface UserService {
-	public static String SecureAuthCookie = "__userAuth";
-	public static String InsecureAuthCookie = "__user";
-
+public interface UserService extends com.threewks.thundr.user.UserService<User> {
 	public User get(String username);
 
 	public User put(User user);
 
 	public boolean delete(String username);
 
-	/** 
-	 * Log in the given user with the supplied password
-	 * 
-	 * @param username
-	 * @param password
-	 * @param resp
-	 * @return true if login was 
-	 */
-	public boolean login(String username, String password, HttpServletResponse resp);
-
-	/**
-	 * Log in the given user
-	 * @param username
-	 * @param resp
-	 * @return true if login was successful
-	 */
-	public boolean login(String username, HttpServletResponse resp);
-
-	public void logout(User user, HttpServletResponse resp);
-
-	public void expireTokens(User user);
-
-	public UserToken createToken(User user);
-
-	public User getUserFromRequest(HttpServletRequest req);
-
-	public User getUserFromToken(String token);
-
 	public List<User> search(String email, int limit);
+	
 }
