@@ -19,29 +19,21 @@ package com.threewks.thundr.user.gae;
 
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
-import com.threewks.thundr.action.method.ActionInterceptorRegistry;
-import com.threewks.thundr.action.method.MethodAction;
 import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
 import com.threewks.thundr.gae.GaeInjectionConfiguration;
 import com.threewks.thundr.injection.BaseInjectionConfiguration;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
-import com.threewks.thundr.route.RouteType;
-import com.threewks.thundr.route.Routes;
-import com.threewks.thundr.user.UserActionMethodBinder;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
+import com.threewks.thundr.user.action.UserActionMethodBinder;
 
 public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
 		dependencyRegistry.addDependency(GaeInjectionConfiguration.class);
-	}
-
-	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		super.initialise(injectionContext);
+		dependencyRegistry.addDependency(com.threewks.thundr.user.UserInjectionConfiguration.class);
 	}
 
 	@Override
@@ -59,24 +51,14 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 
 	public void start(UpdatableInjectionContext injectionContext) {
 		UserService userService = injectionContext.get(UserService.class);
-		String userLoginPath = injectionContext.get(String.class, "userLoginPath");
 
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
 		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
-
-		ActionInterceptorRegistry actionInterceptorRegistry = injectionContext.get(ActionInterceptorRegistry.class);
-		UserRequiredActionInterceptor interceptor = new UserRequiredActionInterceptor(userService, userLoginPath);
-		actionInterceptorRegistry.registerInterceptor(UserRequired.class, interceptor);
-
-		Routes routes = injectionContext.get(Routes.class);
-		routes.addRoute(RouteType.POST, "/_user/login", null, new MethodAction(UserController.class, UserController.Methods.Login));
-		routes.addRoute(RouteType.POST, "/_user/logout", null, new MethodAction(UserController.class, UserController.Methods.Logout));
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
 		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
 		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
 	}
-
 }

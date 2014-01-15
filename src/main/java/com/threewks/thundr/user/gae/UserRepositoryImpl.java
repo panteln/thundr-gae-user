@@ -29,11 +29,12 @@ public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void putAuthentication(U user, Authentication authentication) {
+	public U putAuthentication(U user, Authentication authentication) {
 		ObjectifyAuthentication<?> objectifyAuthentication = objectifyAuthentication(authentication);
 		objectifyAuthentication.setUser(user);
 		update(user);
 		ofy().save().entities(objectifyAuthentication).now();
+		return user;
 	}
 
 	@Override

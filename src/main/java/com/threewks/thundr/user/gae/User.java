@@ -116,9 +116,8 @@ public class User implements com.threewks.thundr.user.User {
 		props.put(key, value);
 	}
 
-	public User removeProperty(String key) {
+	public void removeProperty(String key) {
 		props.remove(key);
-		return this;
 	}
 
 	public User withProperty(String key, String value) {

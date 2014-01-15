@@ -94,7 +94,7 @@ public class UserTest {
 		assertThat(user.withProperty("key", "new value"), is(user));
 		assertThat(user.getProperty("key"), is("new value"));
 
-		assertThat(user.removeProperty("key"), is(user));
+		user.removeProperty("key");
 		assertThat(user.getProperty("key"), is(nullValue()));
 		assertThat(user.getProperties().isEmpty(), is(true));
 	}
