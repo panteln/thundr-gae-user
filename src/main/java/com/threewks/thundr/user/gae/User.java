@@ -34,6 +34,8 @@ import com.googlecode.objectify.annotation.EmbedMap;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.user.authentication.Authentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 @Entity(name = "thundrUser")
 public class User implements com.threewks.thundr.user.User {
@@ -56,6 +58,7 @@ public class User implements com.threewks.thundr.user.User {
 	protected Long lastLogin;
 	protected Long createdAt;
 	@EmbedMap protected Map<String, String> props = new HashMap<>();
+	@Index protected Set<Authentication> authentications = new LinkedHashSet<>();
 
 	User() {
 
@@ -172,6 +175,35 @@ public class User implements com.threewks.thundr.user.User {
 	@Override
 	public void removeRole(String role) {
 		this.roles.remove(role);
+	}
+
+	public void addAuthentication(Authentication authentication) {
+		this.authentications.add(authentication);
+	}
+
+	public void removeAuthentication(Authentication authentication) {
+		this.authentications.remove(authentication);
+	}
+
+	/**
+	 * Returns the Authentication of the same type as the given.
+	 * For example, given a {@link PasswordAuthentication}, returns a {@link PasswordAuthentication} regardless of
+	 * if they have the same contents.
+	 * 
+	 * @param authentication
+	 * @return the authentication for this user of the same type
+	 */
+	public Authentication getMatchingAuthentication(Authentication authentication) {
+		for(Authentication a : authentications){
+			if(authentication.getClass() == a.getClass()){
+				return a;
+			}
+		}
+		return null;
+	}
+
+	public Set<Authentication> getAuthentications() {
+		return authentications;
 	}
 
 	private static final List<String> DefaultFieldsToIndex = list(Fields.Username, Fields.Email, Fields.EmailUser, Fields.EmailDomain, Fields.Roles, Fields.Created);

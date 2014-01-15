@@ -24,7 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.http.URLEncoder;
 import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.user.authentication.BasicPasswordAuthenticationStrategy;
+import com.threewks.thundr.user.authentication.BasePasswordAuthentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 import com.threewks.thundr.view.redirect.RedirectView;
 
 public class UserController {
@@ -51,7 +52,7 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		User user = userService.login(username, BasicPasswordAuthenticationStrategy.class, password, resp);
+		User user = userService.login(new PasswordAuthentication(username, password), resp);
 		if (user == null) {
 			return redirectOnError(r, "l", "no");
 		}

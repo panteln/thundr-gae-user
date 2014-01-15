@@ -15,17 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.user.gae;
+package com.threewks.thundr.user.gae.authentication;
 
-import java.util.List;
+import com.googlecode.objectify.Objectify;
+import com.threewks.thundr.user.authentication.Authentication;
+import com.threewks.thundr.user.gae.User;
 
-public interface UserService extends com.threewks.thundr.user.UserService<User> {
-	public User get(String username);
-
-	public User put(User user);
-
-	public boolean delete(String username);
-
-	public List<User> search(String email, int limit);
-	
+public interface BaseAuthentication extends Authentication {
+	public User getUser(Objectify ofy);
 }

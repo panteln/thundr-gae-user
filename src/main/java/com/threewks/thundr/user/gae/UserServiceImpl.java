@@ -27,21 +27,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.Expressive;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyFactory;
-import com.googlecode.objectify.VoidWork;
 import com.threewks.thundr.search.google.SearchRequest;
 import com.threewks.thundr.search.google.SearchService;
 import com.threewks.thundr.user.BaseUserService;
-import com.threewks.thundr.user.UserServiceException;
-import com.threewks.thundr.user.authentication.AuthenticationStrategy;
+import com.threewks.thundr.user.UserRepository;
+import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.gae.User.Fields;
 
 public class UserServiceImpl extends BaseUserService<User> implements UserService {
 	private SearchService searchService;
 
-	public UserServiceImpl(SearchService searchService, List<AuthenticationStrategy> authenticationStrategies) {
-		super(authenticationStrategies);
+	public UserServiceImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
+		super(tokenRepository, userRepository);
 		this.searchService = searchService;
 	}
 
@@ -63,45 +61,23 @@ public class UserServiceImpl extends BaseUserService<User> implements UserServic
 		if (user != null) {
 			ofy().delete().entity(user).now();
 			searchService.remove(User.class, list(username));
+			
 		}
 		return user != null;
 	}
 
-	@Override
-	public void expireTokens(User user) {
-		List<UserToken> tokens = ofy().load().type(UserToken.class).ancestor(user).list();
-		ofy().delete().entities(tokens).now();
-	}
-
-	@Override
-	public String createToken(User user) {
-		final UserToken token = new UserToken(user);
-		ofy().transact(new VoidWork() {
-			@Override
-			public void vrun() {
-				ofy().save().entity(token).now();
-			}
-		});
-		return token.getKey().getString();
-	}
-
-	@Override
-	public String getUsernameFromToken(String token) {
-		Key<UserToken> key = Key.create(token);
-		UserToken userToken = ofy().load().key(key).now();
-		return userToken == null ? null : userToken.getUser().getUsername();
-	}
-
-	@Override
-	public User getExistingUser(Class<? extends AuthenticationStrategy> type, String value) {
-		AuthenticationStrategy authenticationStrategy = authenticationStrategies.get(type);
-		if (authenticationStrategy == null) {
-			throw new UserServiceException("Unable to find user - the %s %s is not registered", AuthenticationStrategy.class.getSimpleName(), type.getSimpleName());
-		}
-		String lookupKey = authenticationStrategy.getLookupKey();
-		User user = ofy().load().type(User.class).filter(lookupKey, value).first().now();
-		return user;
-	}
+	/*
+	 * @Override
+	 * public User getExistingUser(Class<? extends AuthenticationStrategy> type, String value) {
+	 * AuthenticationStrategy authenticationStrategy = authenticationStrategies.get(type);
+	 * if (authenticationStrategy == null) {
+	 * throw new UserServiceException("Unable to find user - the %s %s is not registered", AuthenticationStrategy.class.getSimpleName(), type.getSimpleName());
+	 * }
+	 * String lookupKey = authenticationStrategy.getLookupKey();
+	 * User user = ofy().load().type(User.class).filter(lookupKey, value).first().now();
+	 * return user;
+	 * }
+	 */
 
 	@Override
 	public List<User> search(String email, int limit) {
