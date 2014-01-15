@@ -29,6 +29,8 @@ import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
 import com.threewks.thundr.user.UserActionMethodBinder;
+import com.threewks.thundr.user.UserRepository;
+import com.threewks.thundr.user.UserTokenRepository;
 
 public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 	@Override
@@ -40,14 +42,22 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
-		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
-		injectionContext.inject(UserServiceImpl.class).as(com.threewks.thundr.user.UserService.class);
 	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
 
+		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
+		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
+		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
+		injectionContext.inject(UserServiceImpl.class).as(com.threewks.thundr.user.UserService.class);
+
+		configureObjectify(injectionContext);
+
+	}
+
+	public void start(UpdatableInjectionContext injectionContext) {
 		UserService userService = injectionContext.get(UserService.class);
 		String userLoginPath = injectionContext.get(String.class, "userLoginPath");
 
@@ -59,11 +69,6 @@ public class UserInjectionConfiguration extends BaseInjectionConfiguration {
 		UserRequiredActionInterceptor interceptor = new UserRequiredActionInterceptor(userService, userLoginPath);
 		actionInterceptorRegistry.registerInterceptor(UserRequired.class, interceptor);
 
-		configureObjectify(injectionContext);
-
-	}
-
-	public void start(UpdatableInjectionContext injectionContext) {
 		Routes routes = injectionContext.get(Routes.class);
 		routes.addRoute(RouteType.POST, "/_user/login", null, new MethodAction(UserController.class, UserController.Methods.Login));
 		routes.addRoute(RouteType.POST, "/_user/logout", null, new MethodAction(UserController.class, UserController.Methods.Logout));
