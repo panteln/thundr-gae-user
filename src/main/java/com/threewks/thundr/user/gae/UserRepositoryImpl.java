@@ -19,41 +19,36 @@ package com.threewks.thundr.user.gae;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-import java.util.Collection;
-
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
-import com.threewks.thundr.user.gae.authentication.BaseAuthentication;
+import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
 
 public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 
 	@Override
 	public void putAuthentication(U user, Authentication authentication) {
-		user.addAuthentication(authentication);
+		ObjectifyAuthentication baseAuthentication = baseAuthentication(authentication);
+		baseAuthentication.setUser(user);
 		update(user);
+		ofy().save().entities(baseAuthentication).now();
 	}
 
 	@Override
 	public void removeAuthentication(Authentication authentication) {
-		U user = get(authentication);
-		if (user != null) {
-			user.removeAuthentication(authentication);
-		}
-		update(user);
+		ofy().delete().entities(authentication);
 	}
 
-	@Override
-	public Collection<Authentication> getAuthentications(U user) {
-		return user.getAuthentications();
-	}
-
-	@Override
-	public void removeAuthentications(U user) {
-		user.getAuthentications().clear();
-		update(user);
-	}
+	/*
+	 * @Override
+	 * public Collection<Authentication> getAuthentications(U user) {
+	 * }
+	 * 
+	 * @Override
+	 * public void removeAuthentications(U user) {
+	 * }
+	 */
 
 	@Override
 	public void update(U user) {
@@ -63,16 +58,20 @@ public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public U get(Authentication authentication) {
-		BaseAuthentication baseAuthentication = Cast.as(authentication, BaseAuthentication.class);
-		if (baseAuthentication == null) {
-			throw new UserServiceException("Unable to find a matching authentication for %s, it must be a %s to be found in the datastore", authentication, BaseAuthentication.class.getSimpleName());
-		}
+		ObjectifyAuthentication baseAuthentication = baseAuthentication(authentication);
 		return ((U) baseAuthentication.getUser(ofy()));
 	}
 
 	@Override
 	public Authentication getAuthentication(Authentication authentication) {
-		U user = get(authentication);
-		return user.getMatchingAuthentication(authentication);
+		return baseAuthentication(authentication).getMatchingAuthentication(ofy(), authentication);
+	}
+
+	private ObjectifyAuthentication baseAuthentication(Authentication authentication) {
+		ObjectifyAuthentication baseAuthentication = Cast.as(authentication, ObjectifyAuthentication.class);
+		if (baseAuthentication == null) {
+			throw new UserServiceException("Unable to work with authentication %s, it must be a %s to be stored/found in the datastore", authentication, ObjectifyAuthentication.class.getSimpleName());
+		}
+		return baseAuthentication;
 	}
 }

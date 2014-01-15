@@ -21,6 +21,26 @@ import com.googlecode.objectify.Objectify;
 import com.threewks.thundr.user.authentication.Authentication;
 import com.threewks.thundr.user.gae.User;
 
-public interface BaseAuthentication extends Authentication {
+/**
+ * Authentications stored into the User object with Objectify implement this interface.
+ */
+public interface ObjectifyAuthentication<Self extends ObjectifyAuthentication<Self>> extends Authentication {
+	public void setUser(User user);
+
+	/**
+	 * Find the user for this type of authentication. If this authentication is unverified, a search
+	 * may need to be performed, if it is verified the user will already have been set previously.
+	 * 
+	 * @param ofy
+	 * @return the user for this authentication, or null if none
+	 */
 	public User getUser(Objectify ofy);
+
+	/**
+	 * Find the authentication matching the given one - that is the authentication that is of the same type for the same user.
+	 * 
+	 * @param authentication
+	 * @return
+	 */
+	public Self getMatchingAuthentication(Objectify ofy, Self authentication);
 }
