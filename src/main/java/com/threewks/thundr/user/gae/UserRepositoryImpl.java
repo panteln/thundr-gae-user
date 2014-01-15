@@ -27,12 +27,13 @@ import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
 
 public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void putAuthentication(U user, Authentication authentication) {
-		ObjectifyAuthentication baseAuthentication = baseAuthentication(authentication);
-		baseAuthentication.setUser(user);
+		ObjectifyAuthentication<?> objectifyAuthentication = objectifyAuthentication(authentication);
+		objectifyAuthentication.setUser(user);
 		update(user);
-		ofy().save().entities(baseAuthentication).now();
+		ofy().save().entities(objectifyAuthentication).now();
 	}
 
 	@Override
@@ -58,20 +59,22 @@ public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public U get(Authentication authentication) {
-		ObjectifyAuthentication baseAuthentication = baseAuthentication(authentication);
-		return ((U) baseAuthentication.getUser(ofy()));
+		ObjectifyAuthentication<?> objectifyAuthentication = objectifyAuthentication(authentication);
+		return ((U) objectifyAuthentication.getUser(ofy()));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Authentication getAuthentication(Authentication authentication) {
-		return baseAuthentication(authentication).getMatchingAuthentication(ofy(), authentication);
+		ObjectifyAuthentication objectifyAuthentication = objectifyAuthentication(authentication);
+		return objectifyAuthentication.getMatchingAuthentication(ofy(), objectifyAuthentication);
 	}
 
-	private ObjectifyAuthentication baseAuthentication(Authentication authentication) {
-		ObjectifyAuthentication baseAuthentication = Cast.as(authentication, ObjectifyAuthentication.class);
-		if (baseAuthentication == null) {
+	private ObjectifyAuthentication<?> objectifyAuthentication(Authentication authentication) {
+		ObjectifyAuthentication<?> objectifyAuthentication = Cast.as(authentication, ObjectifyAuthentication.class);
+		if (objectifyAuthentication == null) {
 			throw new UserServiceException("Unable to work with authentication %s, it must be a %s to be stored/found in the datastore", authentication, ObjectifyAuthentication.class.getSimpleName());
 		}
-		return baseAuthentication;
+		return objectifyAuthentication;
 	}
 }
