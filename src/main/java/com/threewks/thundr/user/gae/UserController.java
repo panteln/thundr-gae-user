@@ -51,7 +51,7 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		User user = userService.login(new PasswordAuthentication(username, password), resp);
+		User user = userService.login(new PasswordAuthentication(username, password), resp, password);
 		if (user == null) {
 			return redirectOnError(r, "l", "no");
 		}
