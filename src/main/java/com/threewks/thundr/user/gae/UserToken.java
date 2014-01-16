@@ -17,6 +17,8 @@
  */
 package com.threewks.thundr.user.gae;
 
+import java.util.Random;
+
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
@@ -26,6 +28,7 @@ import com.googlecode.objectify.annotation.Parent;
 
 @Entity
 public class UserToken {
+	private static final Random random = new Random();
 	@Id
 	private Long id;
 
@@ -38,6 +41,7 @@ public class UserToken {
 	}
 
 	public UserToken(User user) {
+		this.id = random.nextLong();
 		this.user = Ref.create(user);
 	}
 
