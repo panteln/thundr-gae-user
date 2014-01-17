@@ -34,6 +34,8 @@ import com.threewks.thundr.user.BaseUserService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.gae.User.Fields;
+import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserServiceImpl extends BaseUserService<User> implements UserService {
 	private SearchService searchService;
@@ -101,5 +103,7 @@ public class UserServiceImpl extends BaseUserService<User> implements UserServic
 	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
 		objectifyFactory.register(User.class);
 		objectifyFactory.register(UserToken.class);
+		objectifyFactory.register(PasswordAuthentication.class);
+		objectifyFactory.register(OAuthAuthentication.class);
 	}
 }

@@ -25,9 +25,10 @@ import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.user.authentication.BasePasswordAuthentication;
 import com.threewks.thundr.user.gae.User;
 
-@Entity
 @Index
+@Entity
 public class PasswordAuthentication extends BasePasswordAuthentication implements ObjectifyAuthentication<PasswordAuthentication> {
+	// To apply the @Id annotation, we need to shadow the username in the base class. This means that there is actually two username fields on instances of this class.
 	@Id protected String username;
 	protected Ref<User> userRef;
 
@@ -37,10 +38,23 @@ public class PasswordAuthentication extends BasePasswordAuthentication implement
 
 	public PasswordAuthentication(String username, String password) {
 		super(username, password);
+		this.username = username;
 	}
 
 	public PasswordAuthentication(String username, String password, int iterations, String digest) {
 		super(username, password, iterations, digest);
+		this.username = username;
+	}
+
+	@Override
+	public void setUsername(String username) {
+		super.setUsername(username);
+		this.username = username;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.username;
 	}
 
 	@Override

@@ -25,16 +25,16 @@ import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.user.authentication.BaseOAuthAuthentication;
 import com.threewks.thundr.user.gae.User;
 
-@Entity(name = "OAuthAuthentication")
 @Index
-public class ObjectifyOAuthAuthentication extends BaseOAuthAuthentication implements ObjectifyAuthentication<ObjectifyOAuthAuthentication> {
+@Entity
+public class OAuthAuthentication extends BaseOAuthAuthentication implements ObjectifyAuthentication<OAuthAuthentication> {
 	@Id protected String id;
 	protected Ref<User> userRef;
 
-	public ObjectifyOAuthAuthentication() {
+	public OAuthAuthentication() {
 	}
 
-	public ObjectifyOAuthAuthentication(String provider, String identity, String email) {
+	public OAuthAuthentication(String provider, String identity, String email) {
 		super(provider, identity, email);
 		ensureId();
 	}
@@ -54,15 +54,15 @@ public class ObjectifyOAuthAuthentication extends BaseOAuthAuthentication implem
 	@Override
 	public User getUser(Objectify ofy) {
 		if (userRef == null) {
-			ObjectifyOAuthAuthentication matchingAuth = (ObjectifyOAuthAuthentication) getMatchingAuthentication(ofy, this);
+			OAuthAuthentication matchingAuth = (OAuthAuthentication) getMatchingAuthentication(ofy, this);
 			return matchingAuth == null ? null : matchingAuth.userRef.get();
 		}
 		return userRef.get();
 	}
 
 	@Override
-	public ObjectifyOAuthAuthentication getMatchingAuthentication(Objectify ofy, ObjectifyOAuthAuthentication authentication) {
-		return ofy.load().type(ObjectifyOAuthAuthentication.class).id(authentication.id).now();
+	public OAuthAuthentication getMatchingAuthentication(Objectify ofy, OAuthAuthentication authentication) {
+		return ofy.load().type(OAuthAuthentication.class).id(authentication.id).now();
 	}
 
 	@Override
