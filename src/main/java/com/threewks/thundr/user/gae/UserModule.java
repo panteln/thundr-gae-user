@@ -20,20 +20,20 @@ package com.threewks.thundr.user.gae;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
-import com.threewks.thundr.gae.GaeInjectionConfiguration;
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.gae.GaeModule;
+import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.action.UserActionMethodBinder;
 
-public class UserInjectionConfiguration extends BaseInjectionConfiguration {
+public class UserModule extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
-		dependencyRegistry.addDependency(GaeInjectionConfiguration.class);
-		dependencyRegistry.addDependency(com.threewks.thundr.user.UserInjectionConfiguration.class);
+		dependencyRegistry.addDependency(GaeModule.class);
+		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 	}
 
 	@Override
