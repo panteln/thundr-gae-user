@@ -38,7 +38,7 @@ To include Oauth functionality for Facebook and Gmail add the following services
 
 ````
 You will also need to update your `application.properties` file to include environment specific parameters dependent
-on the settings from you OAuth Provider and the custom call back urls you setup in with your application. For example:
+on the settings from you OAuth Provider and the custom call back url. For example:
 
 ````
 oAuthCallbackGoogle=http://<domain>/account/provider/google/signin
@@ -51,7 +51,7 @@ oAuthApiSecretFacebook=r098098sd0809809a8sdf098
 ````
 
 Now you have wired all the dependencies in you will need to write you custom controller and include the `OAuthService.java` and `UserService`.
-Refer to the example below:
+Refer to the example below which illustrates:
 
 ````
 public class OAuthController {
