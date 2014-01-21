@@ -36,10 +36,10 @@ import java.util.Map;
 import static com.atomicleopard.expressive.Expressive.list;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-public class UserServiceGaeImpl extends BaseUserService<User> implements UserServiceGae {
+public class UserServiceImpl extends BaseUserService<User> implements UserService {
 	private SearchService searchService;
 
-	public UserServiceGaeImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
+	public UserServiceImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
 		super(tokenRepository, userRepository);
 		this.searchService = searchService;
 	}

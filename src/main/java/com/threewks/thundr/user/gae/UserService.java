@@ -17,9 +17,11 @@
  */
 package com.threewks.thundr.user.gae;
 
+import com.threewks.thundr.user.ThundrUserService;
+
 import java.util.List;
 
-public interface UserServiceGae extends com.threewks.thundr.user.UserService<User> {
+public interface UserService extends ThundrUserService<User> {
 	public User get(String username);
 
 	public User put(User user);

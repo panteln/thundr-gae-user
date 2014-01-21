@@ -17,13 +17,14 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.threewks.thundr.search.google.IndexOperation;
-import com.threewks.thundr.search.google.SearchRequest;
-import com.threewks.thundr.search.google.SearchService;
+import com.atomicleopard.expressive.EList;
+import com.googlecode.objectify.ObjectifyFactory;
+import com.threewks.thundr.search.google.*;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
+import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,7 @@ import static com.atomicleopard.expressive.Expressive.list;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserServiceGaeImplTest {
+public class UserServiceImplTest {
 
 	public static final String USERNAME = "username";
 	@Mock
@@ -47,11 +48,11 @@ public class UserServiceGaeImplTest {
 	@Rule
 	public LocalAppEngineServices localAppEngineServices = new LocalAppEngineServices();
 
-	UserServiceGaeImpl userServiceImpl;
+	UserServiceImpl userServiceImpl;
 
 	@Before
 	public void setUp() throws Exception {
-		userServiceImpl = new UserServiceGaeImpl(searchService, tokenRepository, userRepository);
+		userServiceImpl = new UserServiceImpl(searchService, tokenRepository, userRepository);
 	}
 
 	@Test
@@ -71,15 +72,34 @@ public class UserServiceGaeImplTest {
 		verify(searchService, times(1)).remove(User.class, list(USERNAME));
 	}
 
-	@Ignore
+	@Test
 	public void shouldSearchByEmailAscendingWithLimit() {
-		when(searchService.search(User.class)).thenReturn(mock(SearchRequest.class));
+		SearchRequest query = mock(SearchRequest.class);
+		when(searchService.search(User.class)).thenReturn(query);
+		SearchRequest searchRequest = mock(SearchRequest.class);
+		SearchOperation searchEmailOperation = mock(SearchOperation.class);
+		when(query.field(User.Fields.Email)).thenReturn(searchEmailOperation);
+		SortOperation sortOperation = mock(SortOperation.class);
+		when(query.order(User.Fields.Email)).thenReturn(sortOperation);
+
+		SearchResult searchResult = mock(SearchResult.class);
+		when(query.search()).thenReturn(searchResult);
+		EList resultIds = list("1", "2", "3");
+		when(searchResult.getSearchResultIds()).thenReturn(resultIds);
 		userServiceImpl.search("test@mail.com", 100);
+		verify(searchEmailOperation, times(1)).is("test@mail.com");
+		verify(sortOperation, times(1)).ascending();
+		verify(query, times(1)).limit(100);
 	}
 
 	@Test
 	public void registerObjectifyClasses_state_expectation() {
-		// UserServiceImpl.registerObjectifyClasses(ofy);
+		ObjectifyFactory objectifyFactory = mock(ObjectifyFactory.class);
+		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
+		verify(objectifyFactory, times(1)).register(User.class);
+		verify(objectifyFactory, times(1)).register(UserToken.class);
+		verify(objectifyFactory, times(1)).register(PasswordAuthentication.class);
+		verify(objectifyFactory, times(1)).register(OAuthAuthentication.class);
 	}
 
 	private User createUser(String username) {

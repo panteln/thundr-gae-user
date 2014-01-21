@@ -42,22 +42,22 @@ public class UserModuleGae extends BaseModule {
 
 		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
-		injectionContext.inject(UserServiceGaeImpl.class).as(UserServiceGae.class);
+		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
 
 		configureObjectify(injectionContext);
 
 	}
 
 	public void start(UpdatableInjectionContext injectionContext) {
-		UserServiceGae userServiceGae = injectionContext.get(UserServiceGae.class);
+		UserService userService = injectionContext.get(UserService.class);
 
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
-		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userServiceGae);
+		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
 		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
-		UserServiceGaeImpl.registerObjectifyClasses(objectifyFactory);
+		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
 	}
 }

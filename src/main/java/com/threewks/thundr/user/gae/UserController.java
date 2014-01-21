@@ -32,11 +32,11 @@ public class UserController {
 		public static final String Logout = "logout";
 	}
 
-	private UserServiceGae userServiceGae;
+	private UserService userService;
 	private String loginPath;
 
-	public UserController(UserServiceGae userServiceGae, String userLoginPath) {
-		this.userServiceGae = userServiceGae;
+	public UserController(UserService userService, String userLoginPath) {
+		this.userService = userService;
 		this.loginPath = userLoginPath;
 	}
 
@@ -50,7 +50,7 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		User user = userServiceGae.login(new PasswordAuthentication(username, password), resp, password);
+		User user = userService.login(new PasswordAuthentication(username, password), resp, password);
 		if (user == null) {
 			return redirectOnError(r, "l", "no");
 		}
@@ -62,8 +62,8 @@ public class UserController {
 	}
 
 	public RedirectView logout(String r, HttpServletRequest req, HttpServletResponse resp) {
-		User user = userServiceGae.getUserFromRequest(req);
-		userServiceGae.logout(user, resp);
+		User user = userService.getUserFromRequest(req);
+		userService.logout(user, resp);
 		return new RedirectView(r == null ? loginPath : r);
 	}
 
