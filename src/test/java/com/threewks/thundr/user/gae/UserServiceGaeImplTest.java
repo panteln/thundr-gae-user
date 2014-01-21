@@ -17,11 +17,9 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.threewks.thundr.search.google.IndexOperation;
-import com.threewks.thundr.search.google.SearchRequest;
-import com.threewks.thundr.search.google.SearchService;
-import com.threewks.thundr.user.UserRepository;
-import com.threewks.thundr.user.UserTokenRepository;
+import static com.atomicleopard.expressive.Expressive.list;
+import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -30,22 +28,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.atomicleopard.expressive.Expressive.list;
-import static org.mockito.Mockito.*;
+import com.threewks.thundr.gae.SetupAppengine;
+import com.threewks.thundr.gae.objectify.SetupObjectify;
+import com.threewks.thundr.search.google.IndexOperation;
+import com.threewks.thundr.search.google.SearchRequest;
+import com.threewks.thundr.search.google.SearchService;
+import com.threewks.thundr.user.UserRepository;
+import com.threewks.thundr.user.UserTokenRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceGaeImplTest {
 
 	public static final String USERNAME = "username";
-	@Mock
-	private SearchService searchService;
-	@Mock
-	private UserTokenRepository<User> tokenRepository;
-	@Mock
-	private UserRepository<User> userRepository;
+	@Mock private SearchService searchService;
+	@Mock private UserTokenRepository<User> tokenRepository;
+	@Mock private UserRepository<User> userRepository;
 
-	@Rule
-	public LocalAppEngineServices localAppEngineServices = new LocalAppEngineServices();
+	@Rule public SetupAppengine setupAppengine = new SetupAppengine();
+	@Rule public SetupObjectify setupObjectify = new SetupObjectify(User.class);
 
 	UserServiceGaeImpl userServiceImpl;
 
@@ -71,15 +71,11 @@ public class UserServiceGaeImplTest {
 		verify(searchService, times(1)).remove(User.class, list(USERNAME));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Ignore
 	public void shouldSearchByEmailAscendingWithLimit() {
 		when(searchService.search(User.class)).thenReturn(mock(SearchRequest.class));
 		userServiceImpl.search("test@mail.com", 100);
-	}
-
-	@Test
-	public void registerObjectifyClasses_state_expectation() {
-		// UserServiceImpl.registerObjectifyClasses(ofy);
 	}
 
 	private User createUser(String username) {
