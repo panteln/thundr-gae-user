@@ -1,7 +1,7 @@
 thundr-gae-user
 =================
 
-A thundr module for providing login logout functionality using:
+A thundr module implemented for GAE to provide login logout functionality using:
 * Basic login with username password
 * OAuth2 authorisation for providers Facebook or Gmail.
 

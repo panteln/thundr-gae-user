@@ -6,3 +6,4 @@
 thundr-gae-user.iml
 .idea/
 src/main/resources/rebel.xml
+.DS_Store
