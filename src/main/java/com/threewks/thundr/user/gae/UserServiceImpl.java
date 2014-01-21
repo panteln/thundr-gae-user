@@ -67,19 +67,6 @@ public class UserServiceImpl extends BaseUserService<User> implements UserServic
 		return user != null;
 	}
 
-	/*
-	 * @Override
-	 * public User getExistingUser(Class<? extends AuthenticationStrategy> type, String value) {
-	 * AuthenticationStrategy authenticationStrategy = authenticationStrategies.get(type);
-	 * if (authenticationStrategy == null) {
-	 * throw new UserServiceException("Unable to find user - the %s %s is not registered", AuthenticationStrategy.class.getSimpleName(), type.getSimpleName());
-	 * }
-	 * String lookupKey = authenticationStrategy.getLookupKey();
-	 * User user = ofy().load().type(User.class).filter(lookupKey, value).first().now();
-	 * return user;
-	 * }
-	 */
-
 	@Override
 	public List<User> search(String email, int limit) {
 		SearchRequest<User> query = searchService.search(User.class);

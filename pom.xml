@@ -40,7 +40,6 @@
         <tag>HEAD</tag>
     </scm>
 
-
     <properties>
         <gae.version>1.8.7</gae.version>
         <thundr.version>1.0-SNAPSHOT</thundr.version>
@@ -104,6 +103,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

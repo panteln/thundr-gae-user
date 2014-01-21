@@ -29,7 +29,8 @@ import com.threewks.thundr.user.gae.User;
 @Entity
 public class PasswordAuthentication extends BasePasswordAuthentication implements ObjectifyAuthentication<PasswordAuthentication> {
 	// To apply the @Id annotation, we need to shadow the username in the base class. This means that there is actually two username fields on instances of this class.
-	@Id protected String username;
+	@Id
+	protected String username;
 	protected Ref<User> userRef;
 
 	public PasswordAuthentication() {

@@ -28,7 +28,7 @@ import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.action.UserActionMethodBinder;
 
-public class UserModuleGae extends BaseModule {
+public class UserGaeModule extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
@@ -39,18 +39,15 @@ public class UserModuleGae extends BaseModule {
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
-
 		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
 		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
-
 		configureObjectify(injectionContext);
-
 	}
 
+	@Override
 	public void start(UpdatableInjectionContext injectionContext) {
 		UserService userService = injectionContext.get(UserService.class);
-
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
 		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);

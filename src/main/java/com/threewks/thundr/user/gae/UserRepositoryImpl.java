@@ -17,13 +17,13 @@
  */
 package com.threewks.thundr.user.gae;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
-
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 
@@ -41,16 +41,6 @@ public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 	public void removeAuthentication(Authentication authentication) {
 		ofy().delete().entities(authentication);
 	}
-
-	/*
-	 * @Override
-	 * public Collection<Authentication> getAuthentications(U user) {
-	 * }
-	 * 
-	 * @Override
-	 * public void removeAuthentications(U user) {
-	 * }
-	 */
 
 	@Override
 	public void update(U user) {

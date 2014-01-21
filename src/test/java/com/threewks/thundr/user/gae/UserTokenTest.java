@@ -17,20 +17,19 @@
  */
 package com.threewks.thundr.user.gae;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Rule;
-import org.junit.Test;
-
 import com.googlecode.objectify.Key;
 import com.threewks.thundr.gae.SetupAppengine;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.user.gae.User;
-import com.threewks.thundr.user.gae.UserToken;
+import org.junit.Rule;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class UserTokenTest {
+
 	@Rule
 	public SetupAppengine setupAppengine = new SetupAppengine();
 	@Rule
