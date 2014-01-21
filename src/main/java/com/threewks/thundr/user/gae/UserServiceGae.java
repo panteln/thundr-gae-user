@@ -19,7 +19,7 @@ package com.threewks.thundr.user.gae;
 
 import java.util.List;
 
-public interface UserService extends com.threewks.thundr.user.UserService<User> {
+public interface UserServiceGae extends com.threewks.thundr.user.UserService<User> {
 	public User get(String username);
 
 	public User put(User user);
@@ -27,5 +27,5 @@ public interface UserService extends com.threewks.thundr.user.UserService<User> 
 	public boolean delete(String username);
 
 	public List<User> search(String email, int limit);
-	
+
 }

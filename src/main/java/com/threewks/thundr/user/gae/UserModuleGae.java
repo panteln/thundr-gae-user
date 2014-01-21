@@ -28,7 +28,7 @@ import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.action.UserActionMethodBinder;
 
-public class UserModule extends BaseModule {
+public class UserModuleGae extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
@@ -42,23 +42,22 @@ public class UserModule extends BaseModule {
 
 		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
-		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
-		injectionContext.inject(UserServiceImpl.class).as(com.threewks.thundr.user.UserService.class);
+		injectionContext.inject(UserServiceGaeImpl.class).as(UserServiceGae.class);
 
 		configureObjectify(injectionContext);
 
 	}
 
 	public void start(UpdatableInjectionContext injectionContext) {
-		UserService userService = injectionContext.get(UserService.class);
+		UserServiceGae userServiceGae = injectionContext.get(UserServiceGae.class);
 
 		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
-		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
+		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userServiceGae);
 		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
 		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
-		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
+		UserServiceGaeImpl.registerObjectifyClasses(objectifyFactory);
 	}
 }

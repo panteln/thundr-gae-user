@@ -17,15 +17,14 @@
  */
 package com.threewks.thundr.user.gae;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.threewks.thundr.http.URLEncoder;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 import com.threewks.thundr.view.redirect.RedirectView;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class UserController {
 	public static class Methods {
@@ -33,11 +32,11 @@ public class UserController {
 		public static final String Logout = "logout";
 	}
 
-	private UserService userService;
+	private UserServiceGae userServiceGae;
 	private String loginPath;
 
-	public UserController(UserService userService, String userLoginPath) {
-		this.userService = userService;
+	public UserController(UserServiceGae userServiceGae, String userLoginPath) {
+		this.userServiceGae = userServiceGae;
 		this.loginPath = userLoginPath;
 	}
 
@@ -51,7 +50,7 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		User user = userService.login(new PasswordAuthentication(username, password), resp, password);
+		User user = userServiceGae.login(new PasswordAuthentication(username, password), resp, password);
 		if (user == null) {
 			return redirectOnError(r, "l", "no");
 		}
@@ -63,8 +62,8 @@ public class UserController {
 	}
 
 	public RedirectView logout(String r, HttpServletRequest req, HttpServletResponse resp) {
-		User user = userService.getUserFromRequest(req);
-		userService.logout(user, resp);
+		User user = userServiceGae.getUserFromRequest(req);
+		userServiceGae.logout(user, resp);
 		return new RedirectView(r == null ? loginPath : r);
 	}
 

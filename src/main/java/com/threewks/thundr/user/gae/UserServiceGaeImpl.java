@@ -17,14 +17,6 @@
  */
 package com.threewks.thundr.user.gae;
 
-import static com.atomicleopard.expressive.Expressive.list;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.Expressive;
 import com.googlecode.objectify.ObjectifyFactory;
@@ -36,11 +28,18 @@ import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.gae.User.Fields;
 import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
+import org.apache.commons.lang3.StringUtils;
 
-public class UserServiceImpl extends BaseUserService<User> implements UserService {
+import java.util.List;
+import java.util.Map;
+
+import static com.atomicleopard.expressive.Expressive.list;
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
+public class UserServiceGaeImpl extends BaseUserService<User> implements UserServiceGae {
 	private SearchService searchService;
 
-	public UserServiceImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
+	public UserServiceGaeImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
 		super(tokenRepository, userRepository);
 		this.searchService = searchService;
 	}
@@ -63,7 +62,7 @@ public class UserServiceImpl extends BaseUserService<User> implements UserServic
 		if (user != null) {
 			ofy().delete().entity(user).now();
 			searchService.remove(User.class, list(username));
-			
+
 		}
 		return user != null;
 	}
@@ -88,6 +87,7 @@ public class UserServiceImpl extends BaseUserService<User> implements UserServic
 		if (StringUtils.isNotBlank(email)) {
 			query.field(User.Fields.Email).is(email);
 		}
+
 		query.order(User.Fields.Email).ascending();
 		query.limit(limit);
 
