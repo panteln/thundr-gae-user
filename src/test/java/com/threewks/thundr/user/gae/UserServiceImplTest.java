@@ -17,36 +17,37 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.atomicleopard.expressive.EList;
-import com.googlecode.objectify.ObjectifyFactory;
-import com.threewks.thundr.search.google.*;
+import com.threewks.thundr.search.google.IndexOperation;
+import com.threewks.thundr.search.google.SearchRequest;
+import com.threewks.thundr.search.google.SearchService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
-import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.atomicleopard.expressive.Expressive.list;
-import static org.mockito.Mockito.*;
+import com.threewks.thundr.gae.SetupAppengine;
+import com.threewks.thundr.gae.objectify.SetupObjectify;
+import com.threewks.thundr.search.google.IndexOperation;
+import com.threewks.thundr.search.google.SearchRequest;
+import com.threewks.thundr.search.google.SearchService;
+import com.threewks.thundr.user.UserRepository;
+import com.threewks.thundr.user.UserTokenRepository;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserServiceImplTest {
+public class UserServiceGaeImplTest {
 
 	public static final String USERNAME = "username";
-	@Mock
-	private SearchService searchService;
-	@Mock
-	private UserTokenRepository<User> tokenRepository;
-	@Mock
-	private UserRepository<User> userRepository;
+	@Mock private SearchService searchService;
+	@Mock private UserTokenRepository<User> tokenRepository;
+	@Mock private UserRepository<User> userRepository;
 
-	@Rule
-	public LocalAppEngineServices localAppEngineServices = new LocalAppEngineServices();
+	@Rule public SetupAppengine setupAppengine = new SetupAppengine();
+	@Rule public SetupObjectify setupObjectify = new SetupObjectify(User.class);
 
 	UserServiceImpl userServiceImpl;
 
@@ -101,6 +102,13 @@ public class UserServiceImplTest {
 		verify(objectifyFactory, times(1)).register(PasswordAuthentication.class);
 		verify(objectifyFactory, times(1)).register(OAuthAuthentication.class);
 	}
+
+    @SuppressWarnings("unchecked")
+    @Ignore
+    public void shouldSearchByEmailAscendingWithLimit() {
+        when(searchService.search(User.class)).thenReturn(mock(SearchRequest.class));
+        userServiceImpl.search("test@mail.com", 100);
+    }
 
 	private User createUser(String username) {
 		return new User(username);
