@@ -21,6 +21,7 @@ import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
 import com.threewks.thundr.gae.GaeModule;
+import com.threewks.thundr.gae.objectify.ObjectifyModule;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
@@ -33,6 +34,7 @@ public class UserGaeModule extends BaseModule {
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
 		dependencyRegistry.addDependency(GaeModule.class);
+		dependencyRegistry.addDependency(ObjectifyModule.class);
 		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 	}
 
