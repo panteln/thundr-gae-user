@@ -15,26 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
-import java.util.Map;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.googlecode.objectify.ObjectifyService;
+import org.junit.rules.ExternalResource;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+public class LocalAppEngineServices extends ExternalResource {
 
-import com.threewks.thundr.action.method.bind.ActionMethodBinder;
-import com.threewks.thundr.introspection.ParameterDescription;
-
-public class UserParameterBinder implements ActionMethodBinder {
-	private UserService userService;
+	private LocalServiceTestHelper helper;
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		for (ParameterDescription parameter : bindings.keySet()) {
-			if (parameter.isA(User.class)) {
-				User user = userService.getUserFromRequest(req);
-				bindings.put(parameter, user);
-			}
-		}
+	protected void before() throws Throwable {
+		ObjectifyService.register(User.class);
+		helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig()).setUp();
 	}
+
+	@Override
+	protected void after() {
+		helper.tearDown();
+	}
+
 }

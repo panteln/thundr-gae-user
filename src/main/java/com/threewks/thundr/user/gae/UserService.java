@@ -15,12 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
+package com.threewks.thundr.user.gae;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import com.threewks.thundr.user.ThundrUserService;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface UserRequired {
-	String value() default "user";
+import java.util.List;
+
+public interface UserService extends ThundrUserService<User> {
+	public User get(String username);
+
+	public User put(User user);
+
+	public boolean delete(String username);
+
+	public List<User> search(String email, int limit);
+
 }

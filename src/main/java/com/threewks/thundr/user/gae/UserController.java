@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.gae.user;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
+package com.threewks.thundr.user.gae;
 
 import com.threewks.thundr.http.URLEncoder;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 import com.threewks.thundr.view.redirect.RedirectView;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class UserController {
 	public static class Methods {
@@ -50,8 +50,8 @@ public class UserController {
 			return redirectOnError(r, "p", "no");
 		}
 
-		boolean success = userService.login(username, password, resp);
-		if (!success) {
+		User user = userService.login(new PasswordAuthentication(username, password), resp, password);
+		if (user == null) {
 			return redirectOnError(r, "l", "no");
 		}
 		return new RedirectView(StringUtils.isEmpty(r) ? "/" : r);

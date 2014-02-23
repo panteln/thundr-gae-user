@@ -1,6 +1,9 @@
+*.iml
 .project
 .classpath
 /target
 /.settings
 thundr-gae-user.iml
 .idea/
+src/main/resources/rebel.xml
+.DS_Store

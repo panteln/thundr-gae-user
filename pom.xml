@@ -1,120 +1,132 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<groupId>com.threewks.thundr</groupId>
-		<artifactId>thundr-parent</artifactId>
-		<version>3</version>
-	</parent>
-	<artifactId>thundr-gae-user</artifactId>
-	<version>0.9.11-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>thundr-gae-user</name>
-	<description>A thundr module for supporting basic user accounts on thundr-gae</description>
-	<url>http://3wks.github.com/thundr/</url>
+    <parent>
+        <groupId>com.threewks.thundr</groupId>
+        <artifactId>thundr-parent</artifactId>
+        <version>3</version>
+    </parent>
+    <artifactId>thundr-gae-user</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>thundr-gae-user</name>
+    <description>A thundr module for supporting basic user accounts on thundr-gae</description>
+    <url>http://3wks.github.com/thundr/</url>
 
-	<organization>
-		<name>3wks</name>
-		<url>http://www.3wks.com.au</url>
-	</organization>
+    <organization>
+        <name>3wks</name>
+        <url>http://www.3wks.com.au</url>
+    </organization>
 
-	<developers>
-		<developer>
-			<id>nick</id>
-			<name>Nicholas Okunew</name>
-			<email>nick@3wks.com.au</email>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <id>nick</id>
+            <name>Nicholas Okunew</name>
+            <email>nick@3wks.com.au</email>
+        </developer>
+    </developers>
 
-	<!-- Licensing -->
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<connection>scm:git:https://github.com/3wks/thundr-gae-user</connection>
-		<developerConnection>scm:git:https://github.com/3wks/thundr-gae-user</developerConnection>
-		<url>https://github.com/3wks/thundr-gae-user</url>
-		<tag>HEAD</tag>
-	</scm>
+    <!-- Licensing -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/3wks/thundr-gae-user</connection>
+        <developerConnection>scm:git:https://github.com/3wks/thundr-gae-user</developerConnection>
+        <url>https://github.com/3wks/thundr-gae-user</url>
+        <tag>HEAD</tag>
+    </scm>
 
-	<dependencies>
-		<!-- thundr dependency -->
-		<dependency>
-			<groupId>com.threewks.thundr</groupId>
-			<artifactId>thundr-gae</artifactId>
-			<version>0.9.11</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.objectify</groupId>
-			<artifactId>objectify</artifactId>
-			<version>4.0rc1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>javax.servlet.jsp-api</artifactId>
-			<version>2.2.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>javax.el-api</artifactId>
-			<version>2.2.4</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-			<scope>provided</scope>
-		</dependency>
+    <properties>
+        <gae.version>1.8.7</gae.version>
+        <thundr.version>1.0-SNAPSHOT</thundr.version>
+    </properties>
 
-		<dependency>
-			<groupId>com.google.appengine</groupId>
-			<artifactId>appengine-api-stubs</artifactId>
-			<version>1.8.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.appengine</groupId>
-			<artifactId>appengine-testing</artifactId>
-			<version>1.8.4</version>
-			<scope>test</scope>
-		</dependency>
+    <dependencies>
+        <!-- thundr dependency -->
+        <dependency>
+            <groupId>com.threewks.thundr</groupId>
+            <artifactId>thundr-gae</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.threewks.thundr</groupId>
+            <artifactId>thundr-user</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>2.2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.threewks.thundr</groupId>
+            <artifactId>thundr-gae</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-			<plugin> <!-- SCM config -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<version>1.7</version>
-				<configuration>
-					<connectionType>connection</connectionType>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    </dependencies>
 
-	<!-- Stuff nobody cares about -->
-	<modelVersion>4.0.0</modelVersion>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin> <!-- SCM config -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>1.7</version>
+                <configuration>
+                    <connectionType>connection</connectionType>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Stuff nobody cares about -->
+    <modelVersion>4.0.0</modelVersion>
 </project>
