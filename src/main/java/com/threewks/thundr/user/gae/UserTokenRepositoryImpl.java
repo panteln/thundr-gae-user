@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
+import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.util.Encoder;
 
@@ -51,10 +52,16 @@ public class UserTokenRepositoryImpl<U extends User> implements UserTokenReposit
 	@SuppressWarnings("unchecked")
 	@Override
 	public U getUserForToken(String token) {
-		token = new Encoder(token).unbase64().string();
-		Key<UserToken> key = Key.create(token);
-		UserToken userToken = ofy().load().key(key).now();
-		return (U) (userToken == null ? null : userToken.getUser());
+		try {
+			token = new Encoder(token).unbase64().string();
+			Key<UserToken> key = Key.create(token);
+			UserToken userToken = ofy().load().key(key).now();
+			return (U) (userToken == null ? null : userToken.getUser());
+		} catch (Exception e) {
+			Logger.info("Recieved invalid user token: %s", e.getMessage());
+			return null;
+		}
+
 	}
 
 }
