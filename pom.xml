@@ -41,7 +41,7 @@
 
     <properties>
         <gae.version>1.9.4</gae.version>
-        <thundr.version>1.1.0-SNAPSHOT</thundr.version>
+        <thundr.version>1.1.0</thundr.version>
     </properties>
 
     <dependencies>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-user</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

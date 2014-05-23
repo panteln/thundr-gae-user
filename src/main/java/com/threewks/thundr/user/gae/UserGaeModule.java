@@ -25,6 +25,7 @@ import com.threewks.thundr.gae.objectify.ObjectifyModule;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
+import com.threewks.thundr.user.ThundrUserService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.action.UserActionMethodBinder;
@@ -44,6 +45,7 @@ public class UserGaeModule extends BaseModule {
 		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
 		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
+		injectionContext.inject(UserServiceImpl.class).as(ThundrUserService.class);
 		configureObjectify(injectionContext);
 	}
 
