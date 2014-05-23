@@ -5,7 +5,7 @@
         <version>3</version>
     </parent>
     <artifactId>thundr-gae-user</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
     <name>thundr-gae-user</name>
     <description>A thundr module for supporting basic user accounts on thundr-gae</description>
@@ -36,7 +36,7 @@
         <connection>scm:git:https://github.com/3wks/thundr-gae-user</connection>
         <developerConnection>scm:git:https://github.com/3wks/thundr-gae-user</developerConnection>
         <url>https://github.com/3wks/thundr-gae-user</url>
-        <tag>HEAD</tag>
+        <tag>thundr-gae-user-1.1.1</tag>
     </scm>
 
     <properties>
