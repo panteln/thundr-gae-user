@@ -19,16 +19,17 @@ package com.threewks.thundr.user.gae;
 
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
-import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
+import com.threewks.thundr.bind.BinderRegistry;
 import com.threewks.thundr.gae.GaeModule;
 import com.threewks.thundr.gae.objectify.ObjectifyModule;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
+import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.ThundrUserService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.action.UserActionMethodBinder;
+import com.threewks.thundr.user.action.UserBinder;
 
 public class UserGaeModule extends BaseModule {
 	@Override
@@ -42,23 +43,26 @@ public class UserGaeModule extends BaseModule {
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
-		injectionContext.inject(UserRepositoryImpl.class).as(UserRepository.class);
+		configureObjectify(injectionContext);
+
+		SearchConfig searchConfig = injectionContext.get(SearchConfig.class);
+		injectionContext.inject(new UserRepositoryImpl<>(User.class, searchConfig)).as(UserRepository.class);
+		injectionContext.inject(new UserRepositoryImpl<>(User.class, searchConfig)).as(UserRepositoryImpl.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
 		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
 		injectionContext.inject(UserServiceImpl.class).as(ThundrUserService.class);
-		configureObjectify(injectionContext);
 	}
 
 	@Override
 	public void start(UpdatableInjectionContext injectionContext) {
 		UserService userService = injectionContext.get(UserService.class);
-		ActionMethodBinderRegistry actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
-		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, userService);
-		actionMethodBinderRegistry.registerActionMethodBinder(userActionMethodBinder);
+		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+		UserBinder<User> userActionMethodBinder = new UserBinder<User>(User.class, userService);
+		binderRegistry.registerBinder(userActionMethodBinder);
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
 		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
-		UserServiceImpl.registerObjectifyClasses(objectifyFactory);
+		UserRepositoryImpl.registerObjectifyClasses(objectifyFactory);
 	}
 }

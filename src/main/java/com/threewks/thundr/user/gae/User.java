@@ -17,13 +17,10 @@
  */
 package com.threewks.thundr.user.gae;
 
-import static com.atomicleopard.expressive.Expressive.list;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +31,8 @@ import com.googlecode.objectify.annotation.EmbedMap;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.search.SearchId;
+import com.threewks.thundr.search.SearchIndex;
 
 @Entity(name = "thundrUser")
 public class User implements com.threewks.thundr.user.User {
@@ -47,16 +46,25 @@ public class User implements com.threewks.thundr.user.User {
 		public static final String EmailDomain = null;
 	}
 
-	@Id @Index protected String username;
-	@Index protected String email;
-	@Index protected Set<String> roles = new LinkedHashSet<>();
+	@Id
+	@Index
+	@SearchId
+	@SearchIndex
+	protected String username;
+	@Index
+	@SearchIndex
+	protected String email;
+	@Index
+	@SearchIndex
+	protected Set<String> roles = new LinkedHashSet<>();
 
 	protected String hashedPassword;
 	protected byte[] salt;
 	protected Long lastLogin;
 	protected Long createdAt;
-	@EmbedMap protected Map<String, String> props = new HashMap<>();
-	
+	@EmbedMap
+	protected Map<String, String> props = new HashMap<>();
+
 	User() {
 
 	}
@@ -87,10 +95,12 @@ public class User implements com.threewks.thundr.user.User {
 		return email;
 	}
 
+	@SearchIndex
 	public String getEmailUser() {
 		return StringUtils.substringBefore(email, "@");
 	}
 
+	@SearchIndex
 	public String getEmailDomain() {
 		return StringUtils.substringAfter(email, "@");
 	}
@@ -125,6 +135,7 @@ public class User implements com.threewks.thundr.user.User {
 		return this;
 	}
 
+	@SearchIndex
 	public DateTime getCreated() {
 		return createdAt == null ? null : new DateTime(createdAt);
 	}
@@ -171,12 +182,5 @@ public class User implements com.threewks.thundr.user.User {
 	@Override
 	public void removeRole(String role) {
 		this.roles.remove(role);
-	}
-
-
-	private static final List<String> DefaultFieldsToIndex = list(Fields.Username, Fields.Email, Fields.EmailUser, Fields.EmailDomain, Fields.Roles, Fields.Created);
-
-	public Iterable<String> getFieldsToIndex() {
-		return DefaultFieldsToIndex;
 	}
 }

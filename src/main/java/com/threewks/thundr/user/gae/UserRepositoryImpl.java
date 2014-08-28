@@ -17,15 +17,25 @@
  */
 package com.threewks.thundr.user.gae;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 import com.atomicleopard.expressive.Cast;
+import com.googlecode.objectify.ObjectifyFactory;
+import com.threewks.thundr.gae.objectify.repository.Repository;
+import com.threewks.thundr.gae.objectify.repository.StringRepository;
+import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
+import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+public class UserRepositoryImpl<U extends User> extends StringRepository<U> implements UserRepository<U>, Repository<U, String> {
 
-public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
+	public UserRepositoryImpl(Class<U> entityType, SearchConfig searchConfig) {
+		super(entityType, searchConfig);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -67,5 +77,12 @@ public class UserRepositoryImpl<U extends User> implements UserRepository<U> {
 			throw new UserServiceException("Unable to work with authentication %s, it must be a %s to be stored/found in the datastore", authentication, ObjectifyAuthentication.class.getSimpleName());
 		}
 		return objectifyAuthentication;
+	}
+
+	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
+		objectifyFactory.register(User.class);
+		objectifyFactory.register(UserToken.class);
+		objectifyFactory.register(PasswordAuthentication.class);
+		objectifyFactory.register(OAuthAuthentication.class);
 	}
 }

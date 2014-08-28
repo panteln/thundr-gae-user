@@ -17,36 +17,33 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.google.appengine.labs.repackaged.com.google.common.collect.Maps;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
-import com.threewks.thundr.action.method.bind.ActionMethodBinder;
-import com.threewks.thundr.action.method.bind.ActionMethodBinderRegistry;
+import com.threewks.thundr.bind.BinderRegistry;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.action.UserActionMethodBinder;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.HashMap;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import com.threewks.thundr.user.action.UserBinder;
 
 public class UserGaeModuleTest {
 
 	private UserGaeModule configuration;
 	private UpdatableInjectionContext injectionContext;
-	private ActionMethodBinderRegistry actionMethodBinderRegistry;
+	private BinderRegistry binderRegistry;
 
 	@Before
 	public void setUp() throws Exception {
 		configuration = new UserGaeModule();
 		injectionContext = new InjectionContextImpl();
-		injectionContext.inject(ActionMethodBinderRegistry.class).as(ActionMethodBinderRegistry.class);
-		actionMethodBinderRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
+		injectionContext.inject(BinderRegistry.class).as(BinderRegistry.class);
+		binderRegistry = injectionContext.get(BinderRegistry.class);
 	}
 
 	@Test
@@ -60,12 +57,8 @@ public class UserGaeModuleTest {
 	@Test
 	public void shouldRegisterActionMethodBinder() {
 		configuration.start(injectionContext);
-		UserActionMethodBinder<User> userActionMethodBinder = new UserActionMethodBinder<User>(User.class, injectionContext.get(UserService.class));
-		HashMap<String, ActionMethodBinder> binders = Maps.newHashMap();
-		Iterable<ActionMethodBinder> registeredActionMethodBinders = actionMethodBinderRegistry.getRegisteredActionMethodBinders();
-		assertThat(registeredActionMethodBinders.iterator().next().getClass().getSimpleName(),
-				is(UserActionMethodBinder.class.getSimpleName()));
 
+		assertThat(binderRegistry.hasBinder(UserBinder.class), is(true));
 	}
 
 	@Test

@@ -17,80 +17,57 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.atomicleopard.expressive.EList;
-import com.atomicleopard.expressive.Expressive;
-import com.googlecode.objectify.ObjectifyFactory;
-import com.threewks.thundr.search.google.SearchRequest;
-import com.threewks.thundr.search.google.SearchService;
-import com.threewks.thundr.user.BaseUserService;
-import com.threewks.thundr.user.UserRepository;
-import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.gae.User.Fields;
-import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
-import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.atomicleopard.expressive.Expressive.list;
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import com.threewks.thundr.search.Is;
+import com.threewks.thundr.search.Search;
+import com.threewks.thundr.user.BaseUserService;
+import com.threewks.thundr.user.UserTokenRepository;
 
 public class UserServiceImpl extends BaseUserService<User> implements UserService {
-	private SearchService searchService;
+	private UserRepositoryImpl<User> userRepositoryImpl;
 
-	public UserServiceImpl(SearchService searchService, UserTokenRepository<User> tokenRepository, UserRepository<User> userRepository) {
+	public UserServiceImpl(UserTokenRepository<User> tokenRepository, UserRepositoryImpl<User> userRepository) {
 		super(tokenRepository, userRepository);
-		this.searchService = searchService;
+		this.userRepositoryImpl = userRepository;
 	}
 
 	@Override
 	public User get(String username) {
-		return ofy().load().type(User.class).filter(Fields.Username, username).first().now();
+		return userRepositoryImpl.load(username);
 	}
 
 	@Override
 	public User put(User user) {
-		ofy().save().entity(user).now();
-		searchService.index(user, user.getUsername(), user.getFieldsToIndex()).complete();
-		return user;
+		return userRepositoryImpl.save(user).complete();
 	}
 
 	@Override
 	public boolean delete(String username) {
 		User user = get(username);
 		if (user != null) {
-			ofy().delete().entity(user).now();
-			searchService.remove(User.class, list(username));
-
+			userRepositoryImpl.deleteByKey(username).complete();
 		}
 		return user != null;
 	}
 
 	@Override
 	public List<User> search(String email, int limit) {
-		SearchRequest<User> query = searchService.search(User.class);
+		Search<User, String> query = buildSearch(email, limit);
+		return query.run().getResults();
+	}
+
+	Search<User, String> buildSearch(String email, int limit) {
+		Search<User, String> query = userRepositoryImpl.search();
 
 		if (StringUtils.isNotBlank(email)) {
-			query.field(User.Fields.Email).is(email);
+			query = query.field(User.Fields.Email, Is.Is, email);
 		}
 
-		query.order(User.Fields.Email).ascending();
-		query.limit(limit);
-
-		EList<String> ids = query.search().getSearchResultIds();
-		return load(ids);
-	}
-
-	private List<User> load(EList<String> ids) {
-		Map<String, User> results = ofy().load().type(User.class).ids(ids);
-		return Expressive.Transformers.transformAllUsing(Expressive.Transformers.usingLookup(results)).from(ids);
-	}
-
-	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
-		objectifyFactory.register(User.class);
-		objectifyFactory.register(UserToken.class);
-		objectifyFactory.register(PasswordAuthentication.class);
-		objectifyFactory.register(OAuthAuthentication.class);
+		query = query.order(User.Fields.Email, true);
+		query = query.limit(limit);
+		return query;
 	}
 }
