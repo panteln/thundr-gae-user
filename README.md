@@ -1,4 +1,4 @@
-thundr-gae-user
+thundr-gae-user [![Build Status](https://travis-ci.org/3wks/thundr-gae-user.svg)](https://travis-ci.org/3wks/thundr-gae-user)
 =================
 
 A thundr module implemented for GAE to provide login logout functionality using:
@@ -10,7 +10,7 @@ Include the thundr-gae-user dependency using maven or your favourite dependency 
     <dependency>
         <groupId>com.threewks.thundr</groupId>
         <artifactId>thundr-gae-user</artifactId>
-        <version>1.0-rc2</version>
+        <version>2.0.0</version>
         <scope>compile</scope>
     </dependency>
 

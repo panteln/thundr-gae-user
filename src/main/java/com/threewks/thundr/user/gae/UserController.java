@@ -1,7 +1,7 @@
 /*
  * This file is a component of thundr, a software library from 3wks.
- * Read more: http://www.3wks.com.au/thundr
- * Copyright (C) 2013 3wks, <thundr@3wks.com.au>
+ * Read more: http://3wks.github.io/thundr/
+ * Copyright (C) 2014 3wks, <thundr@3wks.com.au>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,57 +17,49 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.threewks.thundr.http.URLEncoder;
-import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
-import com.threewks.thundr.view.redirect.RedirectView;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public class UserController {
-	public static class Methods {
-		public static final String Login = "login";
-		public static final String Logout = "logout";
-	}
-
-	private UserService userService;
-	private String loginPath;
-
-	public UserController(UserService userService, String userLoginPath) {
-		this.userService = userService;
-		this.loginPath = userLoginPath;
-	}
-
-	public RedirectView login(String username, String password, String r, HttpServletResponse resp) {
-		Logger.info("%s is attempting to login", username);
-
-		if (StringUtils.isBlank(username)) {
-			return redirectOnError(r, "u", "no");
-		}
-		if (StringUtils.isBlank(password)) {
-			return redirectOnError(r, "p", "no");
-		}
-
-		User user = userService.login(new PasswordAuthentication(username, password), resp, password);
-		if (user == null) {
-			return redirectOnError(r, "l", "no");
-		}
-		return new RedirectView(StringUtils.isEmpty(r) ? "/" : r);
-	}
-
-	private RedirectView redirectOnError(String r, String field, String result) {
-		return new RedirectView(String.format("%s?%s=%s&r=%s", loginPath, field, result, URLEncoder.encodeQueryComponent(r)));
-	}
-
-	public RedirectView logout(String r, HttpServletRequest req, HttpServletResponse resp) {
-		User user = userService.getUserFromRequest(req);
-		userService.logout(user, resp);
-		return new RedirectView(r == null ? loginPath : r);
-	}
-
 	/*
+	 * public static class Methods {
+	 * public static final String Login = "login";
+	 * public static final String Logout = "logout";
+	 * }
+	 * 
+	 * private UserService userService;
+	 * private String loginPath;
+	 * 
+	 * public UserController(UserService userService, String userLoginPath) {
+	 * this.userService = userService;
+	 * this.loginPath = userLoginPath;
+	 * }
+	 * 
+	 * public RedirectView login(String username, String password, String r, HttpServletResponse resp) {
+	 * Logger.info("%s is attempting to login", username);
+	 * 
+	 * if (StringUtils.isBlank(username)) {
+	 * return redirectOnError(r, "u", "no");
+	 * }
+	 * if (StringUtils.isBlank(password)) {
+	 * return redirectOnError(r, "p", "no");
+	 * }
+	 * 
+	 * User user = userService.login(new PasswordAuthentication(username, password), resp, password);
+	 * if (user == null) {
+	 * return redirectOnError(r, "l", "no");
+	 * }
+	 * return new RedirectView(StringUtils.isEmpty(r) ? "/" : r);
+	 * }
+	 * 
+	 * private RedirectView redirectOnError(String r, String field, String result) {
+	 * return new RedirectView(String.format("%s?%s=%s&r=%s", loginPath, field, result, URLEncoder.encodeQueryComponent(r)));
+	 * }
+	 * 
+	 * public RedirectView logout(String r, HttpServletRequest req, HttpServletResponse resp) {
+	 * User user = userService.getUserFromRequest(req);
+	 * userService.logout(user, resp);
+	 * return new RedirectView(r == null ? loginPath : r);
+	 * }
+	 * 
+	 * 
 	 * @RequireRole(Role.Admin)
 	 * public HandlebarsView search(User user) {
 	 * List<User> results = userService.search(null, null, 1000);

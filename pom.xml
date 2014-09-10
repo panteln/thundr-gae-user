@@ -5,7 +5,7 @@
         <version>4</version>
     </parent>
     <artifactId>thundr-gae-user</artifactId>
-    <version>2.0.0-rc2-SNAPSHOT</version>
+    <version>2.0.0-rc3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>thundr-gae-user</name>
     <description>A thundr module for supporting basic user accounts on thundr-gae</description>
@@ -40,8 +40,8 @@
     </scm>
 
     <properties>
-        <gae.version>1.9.9</gae.version>
-        <thundr.version>2.0.0-rc1</thundr.version>
+        <gae.version>1.9.10</gae.version>
+        <thundr.version>${project.version}</thundr.version>
     </properties>
 
     <dependencies>

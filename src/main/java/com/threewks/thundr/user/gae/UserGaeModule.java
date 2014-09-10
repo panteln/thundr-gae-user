@@ -1,7 +1,7 @@
 /*
  * This file is a component of thundr, a software library from 3wks.
- * Read more: http://www.3wks.com.au/thundr
- * Copyright (C) 2013 3wks, <thundr@3wks.com.au>
+ * Read more: http://3wks.github.io/thundr/
+ * Copyright (C) 2014 3wks, <thundr@3wks.com.au>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.ThundrUserService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.action.UserBinder;
+import com.threewks.thundr.user.bind.UserBinder;
 
 public class UserGaeModule extends BaseModule {
 	@Override
@@ -46,8 +46,9 @@ public class UserGaeModule extends BaseModule {
 		configureObjectify(injectionContext);
 
 		SearchConfig searchConfig = injectionContext.get(SearchConfig.class);
-		injectionContext.inject(new UserRepositoryImpl<>(User.class, searchConfig)).as(UserRepository.class);
-		injectionContext.inject(new UserRepositoryImpl<>(User.class, searchConfig)).as(UserRepositoryImpl.class);
+		UserRepositoryImpl<User> userRepository = new UserRepositoryImpl<>(User.class, searchConfig);
+		injectionContext.inject(userRepository).as(UserRepository.class);
+		injectionContext.inject(userRepository).as(UserRepositoryImpl.class);
 		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
 		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
 		injectionContext.inject(UserServiceImpl.class).as(ThundrUserService.class);
