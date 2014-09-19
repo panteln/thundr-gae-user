@@ -55,6 +55,7 @@ public class UserServiceImplTest {
 		userServiceImpl = new UserServiceImpl(tokenRepository, userRepository);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldSaveUserAndIndexToSearchService() {
 		User user = createUser(USERNAME);
@@ -64,6 +65,7 @@ public class UserServiceImplTest {
 		verify(userRepository, times(1)).save(user);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldDeleteUserAndRemoveFromIndex() {
 		User user = createUser(USERNAME);

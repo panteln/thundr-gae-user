@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
-import com.googlecode.objectify.annotation.EmbedMap;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -62,7 +61,6 @@ public class User implements com.threewks.thundr.user.User {
 	protected byte[] salt;
 	protected Long lastLogin;
 	protected Long createdAt;
-	@EmbedMap
 	protected Map<String, String> props = new HashMap<>();
 
 	User() {
