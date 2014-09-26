@@ -28,9 +28,8 @@ import com.threewks.thundr.user.gae.User;
 @Index
 @Entity
 public class PasswordAuthentication extends BasePasswordAuthentication implements ObjectifyAuthentication<PasswordAuthentication> {
-	// To apply the @Id annotation, we need to shadow the username in the base class. This means that there is actually two username fields on instances of this class.
 	@Id
-	protected String username;
+	protected String id;
 	protected Ref<User> userRef;
 
 	public PasswordAuthentication() {
@@ -39,23 +38,23 @@ public class PasswordAuthentication extends BasePasswordAuthentication implement
 
 	public PasswordAuthentication(String username, String password) {
 		super(username, password);
-		this.username = username;
+		this.id = username;
 	}
 
 	public PasswordAuthentication(String username, String password, int iterations, String digest) {
 		super(username, password, iterations, digest);
-		this.username = username;
+		this.id = username;
 	}
 
 	@Override
 	public void setUsername(String username) {
 		super.setUsername(username);
-		this.username = username;
+		this.id = username;
 	}
 
 	@Override
 	public String getUsername() {
-		return this.username;
+		return this.id;
 	}
 
 	@Override
