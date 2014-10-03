@@ -5,7 +5,7 @@
         <version>4</version>
     </parent>
     <artifactId>thundr-gae-user</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>thundr-gae-user</name>
     <description>A thundr module for supporting basic user accounts on thundr-gae</description>
@@ -36,7 +36,7 @@
         <connection>scm:git:https://github.com/3wks/thundr-gae-user</connection>
         <developerConnection>scm:git:https://github.com/3wks/thundr-gae-user</developerConnection>
         <url>https://github.com/3wks/thundr-gae-user</url>
-        <tag>thundr-gae-user-2.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -49,13 +49,13 @@
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-gae</artifactId>
-            <version>2.0.0</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-user</artifactId>
-            <version>2.0.0</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-gae</artifactId>
-            <version>2.0.0</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
