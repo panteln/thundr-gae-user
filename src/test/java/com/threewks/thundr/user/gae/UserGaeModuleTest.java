@@ -26,8 +26,12 @@ import org.junit.Test;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.threewks.thundr.bind.BinderRegistry;
+import com.threewks.thundr.gae.GaeModule;
+import com.threewks.thundr.gae.objectify.ObjectifyModule;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.module.DependencyRegistry;
+import com.threewks.thundr.user.UserModule;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.bind.UserBinder;
@@ -46,6 +50,16 @@ public class UserGaeModuleTest {
 		binderRegistry = injectionContext.get(BinderRegistry.class);
 	}
 
+	@Test
+	public void shouldDependOn() {
+		DependencyRegistry dependencyRegistry = new DependencyRegistry();
+		configuration.requires(dependencyRegistry);
+		
+		assertThat(dependencyRegistry.hasDependency(GaeModule.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(ObjectifyModule.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(UserModule.class), is(true));
+		
+	}
 	@Test
 	public void shouldInjectServices() {
 		configuration.configure(injectionContext);

@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.user.gae;
 
+import static com.atomicleopard.expressive.Expressive.list;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -75,11 +76,38 @@ public class UserTest {
 		assertThat(user.getEmailDomain(), is("domain.com"));
 
 		assertThat(user.withEmail("other@different.co.uk"), is(user));
-		;
 
 		assertThat(user.getEmail(), is("other@different.co.uk"));
 		assertThat(user.getEmailUser(), is("other"));
 		assertThat(user.getEmailDomain(), is("different.co.uk"));
+	}
+
+	@Test
+	public void shouldAllowSettingOfRoles() {
+		User user = new User();
+		assertThat(user.getRoles().isEmpty(), is(true));
+		assertThat(user.hasRole("Role"), is(false));
+		assertThat(user.hasRoles("Role", "Role2"), is(false));
+		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
+
+		user.addRole("Role");
+		assertThat(user.hasRole("Role"), is(true));
+		assertThat(user.hasRoles("Role", "Role2"), is(false));
+		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
+
+		user.setRoles(list("Role", "Role2"));
+
+		assertThat(user.hasRole("Role"), is(true));
+		assertThat(user.hasRoles("Role", "Role2"), is(true));
+		assertThat(user.hasRoles(list("Role", "Role2")), is(true));
+
+		user.removeRole("Role");
+		assertThat(user.hasRole("Role"), is(false));
+		assertThat(user.hasRole("Role2"), is(true));
+		assertThat(user.hasRoles("Role"), is(false));
+		assertThat(user.hasRoles("Role2"), is(true));
+		assertThat(user.hasRoles("Role", "Role2"), is(false));
+		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
 	}
 
 	@Test

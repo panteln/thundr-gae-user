@@ -154,7 +154,7 @@ public class User implements com.threewks.thundr.user.User {
 
 	@Override
 	public void setRoles(Collection<String> roles) {
-		roles = new LinkedHashSet<>(roles);
+		this.roles = new LinkedHashSet<>(roles);
 	}
 
 	@Override

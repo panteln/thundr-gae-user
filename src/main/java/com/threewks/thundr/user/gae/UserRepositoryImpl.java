@@ -49,7 +49,7 @@ public class UserRepositoryImpl<U extends User> extends StringRepository<U> impl
 
 	@Override
 	public void removeAuthentication(Authentication authentication) {
-		ofy().delete().entities(authentication);
+		ofy().delete().entities(authentication).now();
 	}
 
 	@Override

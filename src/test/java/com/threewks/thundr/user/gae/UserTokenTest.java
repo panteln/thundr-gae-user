@@ -17,16 +17,17 @@
  */
 package com.threewks.thundr.user.gae;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Rule;
+import org.junit.Test;
+
 import com.googlecode.objectify.Key;
 import com.threewks.thundr.gae.SetupAppengine;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.test.TestSupport;
-import org.junit.Rule;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 public class UserTokenTest {
 
@@ -49,5 +50,32 @@ public class UserTokenTest {
 		assertThat(key.getKind(), is("UserToken"));
 		assertThat(key.getParent().getName(), is("test"));
 		assertThat(key.getParent().getKind(), is("thundrUser"));
+	}
+
+	@Test
+	public void shouldReturnUserFromToken() {
+		User user = new User("test");
+		ofy().save().entity(user).now();
+		UserToken userToken = new UserToken(user);
+		assertThat(userToken.getUser(), is(user));
+	}
+
+	@Test
+	public void shouldGetKeyForToken() {
+		User user = new User("test");
+		ofy().save().entity(user).now();
+		UserToken userToken = new UserToken(user);
+
+		Key<User> userKey = Key.create(user);
+		Long id = TestSupport.getField(userToken, "id");
+
+		assertThat(userToken.getKey(), is(notNullValue()));
+		assertThat(userToken.getKey(), is(Key.create(userKey, UserToken.class, id)));
+		;
+	}
+
+	@Test
+	public void shouldHaveDefaultCtor() throws InstantiationException, IllegalAccessException {
+		assertThat(UserToken.class.newInstance(), is(notNullValue()));
 	}
 }

@@ -17,15 +17,25 @@
  */
 package com.threewks.thundr.user.gae.authentication;
 
-import org.junit.Test;
-
-import static junit.framework.Assert.assertNull;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class OAuthAuthenticationTest {
+import org.junit.Rule;
+import org.junit.Test;
 
-	OAuthAuthentication oAuthAuthentication;
+import com.threewks.thundr.gae.SetupAppengine;
+import com.threewks.thundr.gae.objectify.SetupObjectify;
+import com.threewks.thundr.user.gae.User;
+
+public class OAuthAuthenticationTest {
+	@Rule
+	public SetupAppengine setupAppengine = new SetupAppengine();
+	@Rule
+	public SetupObjectify setupObjectify = new SetupObjectify(OAuthAuthentication.class, User.class);
+
+	private OAuthAuthentication oAuthAuthentication;
 
 	@Test
 	public void shouldSetIdOnConstruction() {
@@ -36,11 +46,46 @@ public class OAuthAuthenticationTest {
 	@Test
 	public void shouldSetIdOnSettingIdentityAndProvider() {
 		oAuthAuthentication = new OAuthAuthentication();
-		assertNull(oAuthAuthentication.id);
-		assertNull(oAuthAuthentication.getProvider());
+		assertThat(oAuthAuthentication.id, is(nullValue()));
+		assertThat(oAuthAuthentication.getProvider(), is(nullValue()));
 		oAuthAuthentication.setProvider("provider");
 		oAuthAuthentication.setIdentity("identity");
 		assertThat(oAuthAuthentication.id, is("identity:provider"));
+	}
+
+	@Test
+	public void shouldRetainRefToUser() {
+		User user = new User("username");
+		ofy().save().entity(user).now();
+
+		OAuthAuthentication passwordAuthentication = new OAuthAuthentication();
+		passwordAuthentication.setUser(user);
+		assertThat(passwordAuthentication.getUser(ofy()), is(user));
+	}
+
+	@Test
+	public void shouldGetRefToUserIfUserRefNotSet() {
+		User user = new User("username");
+		OAuthAuthentication existing = new OAuthAuthentication("test", "username", "username@email.com");
+		existing.setUser(user);
+		ofy().save().entity(user).now();
+		ofy().save().entity(existing).now();
+
+		OAuthAuthentication passwordAuthentication = new OAuthAuthentication("test", "username", "username@email.com");
+		assertThat(passwordAuthentication.getUser(ofy()), is(user));
+	}
+
+	@Test
+	public void shouldGetMatchingAuthentication() {
+		User user = new User("username");
+		OAuthAuthentication existing = new OAuthAuthentication("test", "username", "username@email.com");
+
+		ofy().save().entity(user).now();
+		ofy().save().entity(existing).now();
+
+		OAuthAuthentication match = new OAuthAuthentication("test", "username", "username@email.com");
+		OAuthAuthentication found = match.getMatchingAuthentication(ofy(), match);
+		assertThat(found, is(existing));
 	}
 
 }
