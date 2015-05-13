@@ -5,7 +5,7 @@ A thundr module with persistence implementations of [thundr-user](https://github
 
 You can read more about how thundr-user works [here](https://github.com/3wks/thundr-user)
 
-*** Getting started ***
+### Getting started
 
 Include the ``thundr-gae-user`` dependency using maven or your favourite dependency management tool.
     
