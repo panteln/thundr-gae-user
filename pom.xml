@@ -41,7 +41,7 @@
 
     <properties>
         <gae.version>1.9.10</gae.version>
-        <thundr.version>${project.version}</thundr.version>
+        <thundr.version>2.0.0</thundr.version>
     </properties>
 
     <dependencies>
@@ -49,13 +49,13 @@
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-gae</artifactId>
-            <version>${project.version}</version>
+            <version>${thundr.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-user</artifactId>
-            <version>${project.version}</version>
+            <version>${thundr.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.threewks.thundr</groupId>
             <artifactId>thundr-gae</artifactId>
-            <version>${project.version}</version>
+            <version>${thundr.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
