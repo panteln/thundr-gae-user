@@ -63,7 +63,7 @@ public class User implements com.threewks.thundr.user.User {
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
 
-	User() {
+	protected User() {
 
 	}
 
