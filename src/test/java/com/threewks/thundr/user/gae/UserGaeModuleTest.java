@@ -72,7 +72,7 @@ public class UserGaeModuleTest {
 	public void shouldRegisterActionMethodBinder() {
 		configuration.start(injectionContext);
 
-		assertThat(binderRegistry.hasBinder(UserBinder.class), is(true));
+		assertThat(binderRegistry.contains(UserBinder.class), is(true));
 	}
 
 	@Test

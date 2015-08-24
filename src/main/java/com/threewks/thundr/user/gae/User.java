@@ -72,10 +72,12 @@ public class User implements com.threewks.thundr.user.User {
 		this.createdAt = new DateTime().getMillis();
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
+	@Override
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -85,10 +87,12 @@ public class User implements com.threewks.thundr.user.User {
 		return this;
 	}
 
+	@Override
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
+	@Override
 	public String getEmail() {
 		return email;
 	}
@@ -112,18 +116,22 @@ public class User implements com.threewks.thundr.user.User {
 		return hashedPassword;
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		return props;
 	}
 
+	@Override
 	public String getProperty(String property) {
 		return props.get(property);
 	}
 
+	@Override
 	public void setProperty(String key, String value) {
 		props.put(key, value);
 	}
 
+	@Override
 	public void removeProperty(String key) {
 		props.remove(key);
 	}
@@ -133,11 +141,13 @@ public class User implements com.threewks.thundr.user.User {
 		return this;
 	}
 
+	@Override
 	@SearchIndex
 	public DateTime getCreated() {
 		return createdAt == null ? null : new DateTime(createdAt);
 	}
 
+	@Override
 	public DateTime getLastLogin() {
 		return lastLogin == null ? null : new DateTime(lastLogin);
 	}
