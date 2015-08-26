@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 import org.junit.Test;
 
 import com.googlecode.objectify.ObjectifyFactory;
+import com.threewks.thundr.user.gae.authentication.AuthenticationContextGae;
 import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
@@ -31,8 +32,9 @@ public class UserRepositoryImplTest {
 	public void registerObjectifyClasses_state_expectation() {
 		ObjectifyFactory objectifyFactory = mock(ObjectifyFactory.class);
 		UserRepositoryImpl.registerObjectifyClasses(objectifyFactory);
-		verify(objectifyFactory, times(1)).register(User.class);
-		verify(objectifyFactory, times(1)).register(UserToken.class);
+		verify(objectifyFactory, times(1)).register(SessionGae.class);
+		verify(objectifyFactory, times(1)).register(AuthenticationContextGae.class);
+		verify(objectifyFactory, times(1)).register(UserGae.class);
 		verify(objectifyFactory, times(1)).register(PasswordAuthentication.class);
 		verify(objectifyFactory, times(1)).register(OAuthAuthentication.class);
 	}

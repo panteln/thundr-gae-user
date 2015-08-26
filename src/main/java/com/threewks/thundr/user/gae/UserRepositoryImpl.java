@@ -19,6 +19,8 @@ package com.threewks.thundr.user.gae;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
+import java.util.List;
+
 import com.atomicleopard.expressive.Cast;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.threewks.thundr.gae.objectify.repository.Repository;
@@ -27,11 +29,12 @@ import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
+import com.threewks.thundr.user.gae.authentication.AuthenticationContextGae;
 import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
-public class UserRepositoryImpl<U extends User> extends StringRepository<U> implements UserRepository<U>, Repository<U, String> {
+public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> implements UserRepository<U>, Repository<U, String> {
 
 	public UserRepositoryImpl(Class<U> entityType, SearchConfig searchConfig) {
 		super(entityType, searchConfig);
@@ -57,6 +60,11 @@ public class UserRepositoryImpl<U extends User> extends StringRepository<U> impl
 		ofy().save().entity(user).now();
 	}
 
+	@Override
+	public List<U> list(List<String> usernames) {
+		return super.load(usernames);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public U get(Authentication authentication) {
@@ -80,8 +88,10 @@ public class UserRepositoryImpl<U extends User> extends StringRepository<U> impl
 	}
 
 	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
-		objectifyFactory.register(User.class);
-		objectifyFactory.register(UserToken.class);
+		objectifyFactory.register(UserGae.class);
+		objectifyFactory.register(AuthenticationContextGae.class);
+		objectifyFactory.register(SessionId.class);
+		objectifyFactory.register(SessionGae.class);
 		objectifyFactory.register(PasswordAuthentication.class);
 		objectifyFactory.register(OAuthAuthentication.class);
 	}

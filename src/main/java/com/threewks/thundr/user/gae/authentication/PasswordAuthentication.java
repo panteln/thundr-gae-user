@@ -23,14 +23,14 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.user.authentication.BasePasswordAuthentication;
-import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserGae;
 
 @Index
 @Entity
 public class PasswordAuthentication extends BasePasswordAuthentication implements ObjectifyAuthentication<PasswordAuthentication> {
 	@Id
 	protected String id;
-	protected Ref<User> userRef;
+	protected Ref<UserGae> userRef;
 
 	public PasswordAuthentication() {
 		super();
@@ -58,7 +58,7 @@ public class PasswordAuthentication extends BasePasswordAuthentication implement
 	}
 
 	@Override
-	public User getUser(Objectify ofy) {
+	public UserGae getUser(Objectify ofy) {
 		if (userRef == null) {
 			PasswordAuthentication matchingAuth = (PasswordAuthentication) getMatchingAuthentication(ofy, this);
 			return matchingAuth == null ? null : matchingAuth.userRef.get();
@@ -72,7 +72,7 @@ public class PasswordAuthentication extends BasePasswordAuthentication implement
 	}
 
 	@Override
-	public void setUser(User user) {
+	public void setUser(UserGae user) {
 		this.userRef = Ref.create(user);
 	}
 }

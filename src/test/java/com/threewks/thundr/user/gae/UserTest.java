@@ -36,12 +36,12 @@ public class UserTest {
 
 	@Test
 	public void shouldHaveDefaultCtor() throws InstantiationException, IllegalAccessException {
-		assertThat(User.class.newInstance(), is(notNullValue()));
+		assertThat(UserGae.class.newInstance(), is(notNullValue()));
 	}
 
 	@Test
 	public void shouldCreateWithUsername() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		assertThat(user.getUsername(), is("username"));
 		assertThat(user.getCreated(), is(now));
 		assertThat(user.getLastLogin(), is(nullValue()));
@@ -50,7 +50,7 @@ public class UserTest {
 
 	@Test
 	public void shouldAllowSettingOfUsername() {
-		User user = new User();
+		UserGae user = new UserGae();
 		assertThat(user.getUsername(), is(nullValue()));
 
 		user.setUsername("username");
@@ -64,7 +64,7 @@ public class UserTest {
 
 	@Test
 	public void shouldAllowSettingOfEmail() {
-		User user = new User();
+		UserGae user = new UserGae();
 		assertThat(user.getEmail(), is(nullValue()));
 		assertThat(user.getEmailUser(), is(nullValue()));
 		assertThat(user.getEmailDomain(), is(nullValue()));
@@ -84,7 +84,7 @@ public class UserTest {
 
 	@Test
 	public void shouldAllowSettingOfRoles() {
-		User user = new User();
+		UserGae user = new UserGae();
 		assertThat(user.getRoles().isEmpty(), is(true));
 		assertThat(user.hasRole("Role"), is(false));
 		assertThat(user.hasRoles("Role", "Role2"), is(false));
@@ -112,7 +112,7 @@ public class UserTest {
 
 	@Test
 	public void shouldAllowStoringOfStringProperties() {
-		User user = new User();
+		UserGae user = new UserGae();
 		assertThat(user.getProperties().isEmpty(), is(true));
 
 		user.setProperty("key", "value");
@@ -129,7 +129,7 @@ public class UserTest {
 
 	@Test
 	public void shouldUpdateLastLoginTime() {
-		User user = new User();
+		UserGae user = new UserGae();
 		assertThat(user.getLastLogin(), is(nullValue()));
 
 		user.setLastLogin(new DateTime());

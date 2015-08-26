@@ -33,7 +33,6 @@ import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.user.UserModule;
 import com.threewks.thundr.user.UserRepository;
-import com.threewks.thundr.user.UserTokenRepository;
 import com.threewks.thundr.user.bind.UserBinder;
 
 public class UserGaeModuleTest {
@@ -63,8 +62,7 @@ public class UserGaeModuleTest {
 	@Test
 	public void shouldInjectServices() {
 		configuration.configure(injectionContext);
-		assertThat(injectionContext.contains(UserTokenRepository.class), is(true));
-		assertThat(injectionContext.contains(UserService.class), is(true));
+		assertThat(injectionContext.contains(UserServiceGae.class), is(true));
 		assertThat(injectionContext.contains(UserRepository.class), is(true));
 	}
 

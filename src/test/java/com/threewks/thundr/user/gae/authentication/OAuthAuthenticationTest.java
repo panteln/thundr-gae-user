@@ -27,13 +27,13 @@ import org.junit.Test;
 
 import com.threewks.thundr.gae.SetupAppengine;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
-import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserGae;
 
 public class OAuthAuthenticationTest {
 	@Rule
 	public SetupAppengine setupAppengine = new SetupAppengine();
 	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(OAuthAuthentication.class, User.class);
+	public SetupObjectify setupObjectify = new SetupObjectify(OAuthAuthentication.class, UserGae.class);
 
 	private OAuthAuthentication oAuthAuthentication;
 
@@ -55,7 +55,7 @@ public class OAuthAuthenticationTest {
 
 	@Test
 	public void shouldRetainRefToUser() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		ofy().save().entity(user).now();
 
 		OAuthAuthentication passwordAuthentication = new OAuthAuthentication();
@@ -65,7 +65,7 @@ public class OAuthAuthenticationTest {
 
 	@Test
 	public void shouldGetRefToUserIfUserRefNotSet() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		OAuthAuthentication existing = new OAuthAuthentication("test", "username", "username@email.com");
 		existing.setUser(user);
 		ofy().save().entity(user).now();
@@ -77,7 +77,7 @@ public class OAuthAuthenticationTest {
 
 	@Test
 	public void shouldGetMatchingAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		OAuthAuthentication existing = new OAuthAuthentication("test", "username", "username@email.com");
 
 		ofy().save().entity(user).now();

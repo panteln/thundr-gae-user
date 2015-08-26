@@ -34,22 +34,22 @@ public class UserRepositoryIT {
 	@Rule
 	public SetupAppengine setupAppengine = new SetupAppengine();
 	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(User.class, PasswordAuthentication.class);
+	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, PasswordAuthentication.class);
 
-	private UserRepositoryImpl<User> userRepository;
+	private UserRepositoryImpl<UserGae> userRepository;
 	
 	@Before
 	public void before() {
-		 userRepository  = new UserRepositoryImpl<User>(User.class, null);
+		 userRepository  = new UserRepositoryImpl<UserGae>(UserGae.class, null);
 	}
 
 	@Test
 	public void shouldPutAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
 		userRepository.putAuthentication(user, authentication);
 
-		User savedUser = ofy().load().type(User.class).id("username").now();
+		UserGae savedUser = ofy().load().type(UserGae.class).id("username").now();
 		assertThat(savedUser, is(notNullValue()));
 		PasswordAuthentication savedAuth = ofy().load().type(PasswordAuthentication.class).id("username").now();
 		assertThat(savedAuth.getHashedpassword(), is(authentication.getHashedpassword()));
@@ -57,7 +57,7 @@ public class UserRepositoryIT {
 	
 	@Test
 	public void shouldRemoveAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
 		userRepository.putAuthentication(user, authentication);
 		
@@ -69,18 +69,18 @@ public class UserRepositoryIT {
 	
 	@Test
 	public void shouldGetUserForAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
 		userRepository.putAuthentication(user, authentication);
 		
-		User found = userRepository.get(authentication);
+		UserGae found = userRepository.get(authentication);
 		assertThat(found, is(notNullValue()));
 		assertThat(found, is(user));
 	}
 	
 	@Test
 	public void shouldGetExistingAuthenticationForGivenAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
 		userRepository.putAuthentication(user, authentication);
 		

@@ -19,13 +19,13 @@ package com.threewks.thundr.user.gae.authentication;
 
 import com.googlecode.objectify.Objectify;
 import com.threewks.thundr.user.authentication.Authentication;
-import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserGae;
 
 /**
  * Authentications stored into the User object with Objectify implement this interface.
  */
 public interface ObjectifyAuthentication<Self extends ObjectifyAuthentication<Self>> extends Authentication {
-	public void setUser(User user);
+	public void setUser(UserGae user);
 
 	/**
 	 * Find the user for this type of authentication. If this authentication is unverified, a search
@@ -34,7 +34,7 @@ public interface ObjectifyAuthentication<Self extends ObjectifyAuthentication<Se
 	 * @param ofy
 	 * @return the user for this authentication, or null if none
 	 */
-	public User getUser(Objectify ofy);
+	public UserGae getUser(Objectify ofy);
 
 	/**
 	 * Find the authentication matching the given one - that is the authentication that is of the same type for the same user.

@@ -26,14 +26,14 @@ import org.junit.Test;
 
 import com.threewks.thundr.gae.SetupAppengine;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
-import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserGae;
 
 public class PasswordAuthenticationTest {
 
 	@Rule
 	public SetupAppengine setupAppengine = new SetupAppengine();
 	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(PasswordAuthentication.class, User.class);
+	public SetupObjectify setupObjectify = new SetupObjectify(PasswordAuthentication.class, UserGae.class);
 
 	@Test
 	public void shouldHaveDefaultCtor() throws InstantiationException, IllegalAccessException {
@@ -93,7 +93,7 @@ public class PasswordAuthenticationTest {
 
 	@Test
 	public void shouldRetainRefToUser() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		ofy().save().entity(user).now();
 
 		PasswordAuthentication passwordAuthentication = new PasswordAuthentication();
@@ -103,7 +103,7 @@ public class PasswordAuthenticationTest {
 
 	@Test
 	public void shouldGetRefToUserIfUserRefNotSet() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication existing = new PasswordAuthentication("username", "password");
 		existing.setUser(user);
 		ofy().save().entity(user).now();
@@ -115,7 +115,7 @@ public class PasswordAuthenticationTest {
 
 	@Test
 	public void shouldGetMatchingAuthentication() {
-		User user = new User("username");
+		UserGae user = new UserGae("username");
 		PasswordAuthentication existing = new PasswordAuthentication("username", "password");
 
 		ofy().save().entity(user).now();
