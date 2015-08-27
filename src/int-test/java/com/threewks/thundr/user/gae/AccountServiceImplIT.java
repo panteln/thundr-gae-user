@@ -1,28 +1,5 @@
 package com.threewks.thundr.user.gae;
 
-import com.google.common.collect.Sets;
-import com.threewks.thundr.gae.SetupAppengine;
-import com.threewks.thundr.gae.objectify.SetupObjectify;
-import com.threewks.thundr.search.gae.SearchConfig;
-import com.threewks.thundr.search.gae.mediator.FieldMediatorSet;
-import com.threewks.thundr.search.gae.meta.IndexTypeLookup;
-import com.threewks.thundr.transformer.TransformerManager;
-import com.threewks.thundr.user.Roles;
-import com.threewks.thundr.user.UserTokenRepository;
-import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Set;
-
-import static com.atomicleopard.expressive.Expressive.list;
-import static com.atomicleopard.expressive.Expressive.set;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 
 public class AccountServiceImplIT {
 /*

@@ -17,45 +17,34 @@
  */
 package com.threewks.thundr.user.gae;
 
-import java.util.Random;
+import java.util.UUID;
 
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Load;
-import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.Index;
 
 @Entity
-public class UserToken {
-	private static final Random random = new Random();
+public class SessionId {
 	@Id
-	private Long id;
+	private String id;
+	@Index
+	private Ref<SessionGae> session;
 
-	@Load
-	@Parent
-	private Ref<User> user;
-
-	UserToken() {
+	public SessionId() {
 
 	}
 
-	public UserToken(User user) {
-		this.id = random.nextLong();
-		this.user = Ref.create(user);
+	public SessionId(SessionGae session) {
+		this.id = UUID.randomUUID().toString();
+		this.session = Ref.create(session);
 	}
 
-	public User getUser() {
-		return user.get();
+	public String getId() {
+		return id;
 	}
 
-	public String getToken() {
-		return Key.create(user.getKey(), UserToken.class, id).getString();
+	public SessionGae getSession() {
+		return session == null ? null : session.get();
 	}
-
-	public Key<UserToken> getKey() {
-		Key<User> parentKey = user.getKey();
-		return Key.create(parentKey, UserToken.class, id);
-	}
-
 }

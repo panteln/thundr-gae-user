@@ -30,7 +30,7 @@ import org.joda.time.DateTime;
 import java.util.*;
 
 @Entity(name = "thundrUser")
-public class User implements com.threewks.thundr.user.User {
+public class UserGae implements com.threewks.thundr.user.User {
 	public static class Fields {
 		public static final String Email = "email";
 		public static final String Username = "username";
@@ -58,29 +58,25 @@ public class User implements com.threewks.thundr.user.User {
 	protected Long lastLogin;
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
-
 	protected Ref<Organisation> organisation;
 
-	protected User() {
+	protected UserGae() {
 
 	}
 
-	public User(String username) {
+	public UserGae(String username) {
+		this(username, null);
+	}
+
+	public UserGae(String username, Organisation organisation) {
 		this.username = StringUtils.trimToEmpty(username);
+		this.organisation = organisation == null ? null : Ref.create(organisation);
 		this.createdAt = new DateTime().getMillis();
-	}
-
-	public User(String username, Organisation organisation) {
-
 	}
 
 	@Override
 	public Organisation getOrganistion() {
-		if (organisation == null) {
-			return null;
-		}
-
-		return organisation.get();
+		return organisation == null ? null : organisation.get();
 	}
 
 	@Override
@@ -93,7 +89,7 @@ public class User implements com.threewks.thundr.user.User {
 		this.username = username;
 	}
 
-	public User withUsername(String username) {
+	public UserGae withUsername(String username) {
 		this.username = username;
 		return this;
 	}
@@ -118,7 +114,7 @@ public class User implements com.threewks.thundr.user.User {
 		return StringUtils.substringAfter(email, "@");
 	}
 
-	public User withEmail(String email) {
+	public UserGae withEmail(String email) {
 		this.email = email;
 		return this;
 	}
@@ -147,7 +143,7 @@ public class User implements com.threewks.thundr.user.User {
 		props.remove(key);
 	}
 
-	public User withProperty(String key, String value) {
+	public UserGae withProperty(String key, String value) {
 		props.put(key, value);
 		return this;
 	}

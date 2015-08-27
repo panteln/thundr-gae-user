@@ -18,8 +18,9 @@ import com.threewks.thundr.gae.objectify.repository.StringRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.AccountRepository;
 import com.threewks.thundr.user.Roles;
+import com.threewks.thundr.user.User;
 
-public class AccountRepositoryImpl<A extends Account, U extends User> implements AccountRepository<A, U> {
+public class AccountRepositoryImpl<A extends Account, U extends UserGae> implements AccountRepository<A, U> {
 
 	private final ETransformer<Collection<UserAccountRolesImpl>, Map<A, UserAccountRolesImpl>> AccountRolesLookup = Expressive.Transformers.toKeyBeanLookup("account", UserAccountRolesImpl.class);
 	private final ETransformer<Collection<UserAccountRolesImpl>, Map<U, UserAccountRolesImpl>> UserRolesLookup = Expressive.Transformers.toKeyBeanLookup("user", UserAccountRolesImpl.class);

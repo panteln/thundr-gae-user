@@ -23,50 +23,51 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.search.Is;
 import com.threewks.thundr.search.Search;
+import com.threewks.thundr.session.SessionService;
 import com.threewks.thundr.user.BaseUserService;
-import com.threewks.thundr.user.UserTokenRepository;
+import com.threewks.thundr.user.User;
 
-public class UserServiceImpl extends BaseUserService<User> implements UserService {
-	private UserRepositoryImpl<User> userRepositoryImpl;
+public class UserServiceImpl extends BaseUserService<UserGae> implements UserServiceGae {
+	protected UserRepositoryGae<UserGae> userRepositoryGae;
 
-	public UserServiceImpl(UserTokenRepository<User> tokenRepository, UserRepositoryImpl<User> userRepository) {
-		super(tokenRepository, userRepository);
-		this.userRepositoryImpl = userRepository;
+	public UserServiceImpl(UserRepositoryGae<UserGae> userRepository, SessionService sessionService) {
+		super(userRepository, sessionService);
+		this.userRepositoryGae = userRepository;
 	}
 
 	@Override
-	public User get(String username) {
-		return userRepositoryImpl.load(username);
+	public UserGae get(String username) {
+		return userRepositoryGae.load(username);
 	}
 
 	@Override
-	public User put(User user) {
-		return userRepositoryImpl.save(user).complete();
+	public UserGae put(UserGae user) {
+		return userRepositoryGae.save(user).complete();
 	}
 
 	@Override
 	public boolean delete(String username) {
 		User user = get(username);
 		if (user != null) {
-			userRepositoryImpl.deleteByKey(username).complete();
+			userRepositoryGae.deleteByKey(username).complete();
 		}
 		return user != null;
 	}
 
 	@Override
-	public List<User> search(String email, int limit) {
-		Search<User, String> query = buildSearch(email, limit);
+	public List<UserGae> search(String email, int limit) {
+		Search<UserGae, String> query = buildSearch(email, limit);
 		return query.run().getResults();
 	}
 
-	Search<User, String> buildSearch(String email, int limit) {
-		Search<User, String> query = userRepositoryImpl.search();
+	Search<UserGae, String> buildSearch(String email, int limit) {
+		Search<UserGae, String> query = userRepositoryGae.search();
 
 		if (StringUtils.isNotBlank(email)) {
-			query = query.field(User.Fields.Email, Is.Is, email);
+			query = query.field(UserGae.Fields.Email, Is.Is, email);
 		}
 
-		query = query.order(User.Fields.Email, true);
+		query = query.order(UserGae.Fields.Email, true);
 		query = query.limit(limit);
 		return query;
 	}

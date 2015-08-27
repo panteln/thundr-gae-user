@@ -20,20 +20,20 @@ public class UserAccountRolesImpl implements Roles {
 	protected String id;
 
 	@Parent
-	protected Ref<User> user;
+	protected Ref<UserGae> user;
 	protected Ref<Account> account;
 
 	protected Set<String> roles = new LinkedHashSet<>();
 	protected DateTime created = new DateTime();
 	protected DateTime lastUpdated;
 
-	public UserAccountRolesImpl(Account account, User user, Set<String> roles) {
+	public UserAccountRolesImpl(Account account, UserGae user, Set<String> roles) {
 		setAccountAndUser(account, user);
 		this.roles.addAll(roles);
 		this.lastUpdated = DateTime.now();
 	}
 
-	public User getUser() {
+	public UserGae getUser() {
 		return user == null ? null : user.get();
 	}
 
@@ -65,7 +65,7 @@ public class UserAccountRolesImpl implements Roles {
 		return this.lastUpdated;
 	}
 
-	protected void setAccountAndUser(Account account, User user) {
+	protected void setAccountAndUser(Account account, UserGae user) {
 		this.id = user.username + account.getId();
 		this.user = Ref.create(user);
 		this.account = Ref.create(account);

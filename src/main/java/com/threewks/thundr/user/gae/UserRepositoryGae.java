@@ -17,17 +17,9 @@
  */
 package com.threewks.thundr.user.gae;
 
-import com.threewks.thundr.user.ThundrUserService;
+import com.threewks.thundr.gae.objectify.repository.Repository;
+import com.threewks.thundr.user.UserRepository;
 
-import java.util.List;
-
-public interface UserService extends ThundrUserService<User> {
-	public User get(String username);
-
-	public User put(User user);
-
-	public boolean delete(String username);
-
-	public List<User> search(String email, int limit);
+public interface UserRepositoryGae<U extends UserGae> extends UserRepository<U>, Repository<U, String> {
 
 }

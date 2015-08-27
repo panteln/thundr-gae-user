@@ -23,13 +23,13 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.user.authentication.BaseOAuthAuthentication;
-import com.threewks.thundr.user.gae.User;
+import com.threewks.thundr.user.gae.UserGae;
 
 @Index
 @Entity
 public class OAuthAuthentication extends BaseOAuthAuthentication implements ObjectifyAuthentication<OAuthAuthentication> {
 	@Id protected String id;
-	protected Ref<User> userRef;
+	protected Ref<UserGae> userRef;
 
 	public OAuthAuthentication() {
 	}
@@ -52,7 +52,7 @@ public class OAuthAuthentication extends BaseOAuthAuthentication implements Obje
 	};
 
 	@Override
-	public User getUser(Objectify ofy) {
+	public UserGae getUser(Objectify ofy) {
 		if (userRef == null) {
 			OAuthAuthentication matchingAuth = (OAuthAuthentication) getMatchingAuthentication(ofy, this);
 			return matchingAuth == null ? null : matchingAuth.userRef.get();
@@ -66,7 +66,7 @@ public class OAuthAuthentication extends BaseOAuthAuthentication implements Obje
 	}
 
 	@Override
-	public void setUser(User user) {
+	public void setUser(UserGae user) {
 		userRef = Ref.create(user);
 	}
 

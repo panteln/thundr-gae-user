@@ -26,9 +26,11 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.search.gae.SearchConfig;
-import com.threewks.thundr.user.ThundrUserService;
+import com.threewks.thundr.session.Session;
+import com.threewks.thundr.session.SessionRepository;
+import com.threewks.thundr.session.SessionService;
 import com.threewks.thundr.user.UserRepository;
-import com.threewks.thundr.user.UserTokenRepository;
+import com.threewks.thundr.user.UserService;
 import com.threewks.thundr.user.bind.UserBinder;
 
 public class UserGaeModule extends BaseModule {
@@ -46,19 +48,19 @@ public class UserGaeModule extends BaseModule {
 		configureObjectify(injectionContext);
 
 		SearchConfig searchConfig = injectionContext.get(SearchConfig.class);
-		UserRepositoryImpl<User> userRepository = new UserRepositoryImpl<>(User.class, searchConfig);
-		injectionContext.inject(userRepository).as(UserRepository.class);
-		injectionContext.inject(userRepository).as(UserRepositoryImpl.class);
-		injectionContext.inject(UserTokenRepositoryImpl.class).as(UserTokenRepository.class);
-		injectionContext.inject(UserServiceImpl.class).as(UserService.class);
-		injectionContext.inject(UserServiceImpl.class).as(ThundrUserService.class);
+		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<>(UserGae.class, searchConfig);
+		injectionContext.inject(userRepository).as(UserRepository.class, UserRepositoryGae.class, UserRepositoryImpl.class);
+		injectionContext.inject(UserServiceImpl.class).as(UserService.class, UserServiceGae.class, UserServiceImpl.class);
+		injectionContext.inject(SessionRepositoryGae.class).as(SessionRepository.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void start(UpdatableInjectionContext injectionContext) {
-		UserService userService = injectionContext.get(UserService.class);
+		UserService<UserGae> userService = injectionContext.get(UserService.class);
+		SessionService<Session> sessionService = injectionContext.get(SessionService.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
-		UserBinder<User> userActionMethodBinder = new UserBinder<User>(User.class, userService);
+		UserBinder<UserGae> userActionMethodBinder = new UserBinder<UserGae>(UserGae.class, userService, sessionService);
 		binderRegistry.add(userActionMethodBinder);
 	}
 
