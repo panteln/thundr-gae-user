@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.gae.objectify.repository.UuidRepository;
@@ -38,7 +37,7 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 	private UuidRepository<SessionId> sessionIdRepository = new UuidRepository<>(SessionId.class, null);
 
 	@Override
-	public List<String> createSessionIds(SessionGae session, int count) {
+	public List<String> createSessionToken(SessionGae session, int count) {
 		List<SessionId> ids = new ArrayList<>();
 		List<String> results = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
@@ -51,7 +50,7 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 	}
 
 	@Override
-	public SessionGae getSession(String sessionId) {
+	public SessionGae get(String sessionId) {
 		if (StringUtils.isBlank(sessionId)) {
 			return null;
 		}
@@ -61,46 +60,16 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 
 	@Override
 	public SessionGae create() {
-		return sessionRepository.save(new SessionGae()).complete();
-	}
-
-	@Override
-	public SessionGae attach(SessionGae session, User user) {
-		session.setUser(Cast.as(user, UserGae.class));
-		return sessionRepository.save(session).complete();
-	}
-
-	@Override
-	public SessionGae detach(SessionGae session, User user) {
-		// TODO - v3 - Does this API make sense, wouldnt you just detach the user
-		// from the session rather than a specific user?
-		if (session.getUser().equals(user)) {
-			session.setUser(null);
-			return sessionRepository.save(session).complete();
-		}
-		return session;
-	}
-
-	@Override
-	public User getUser(String sessionId) {
-		SessionGae session = getSession(sessionId);
-		return session == null ? null : session.getUser();
-	}
-
-	@Override
-	public User getUser(SessionGae session) {
-		return session == null ? null : session.getUser();
+		return new SessionGae();
 	}
 
 	@Override
 	public SessionGae put(SessionGae session) {
-		// TODO - v3 - NAO - Why is this needed? Sessions cant be mutated
 		return sessionRepository.save(session).complete();
 	}
 
 	@Override
 	public List<SessionGae> put(List<SessionGae> sessions) {
-		// TODO - v3 - NAO - Why is this needed? Sessions cant be mutated
 		return sessionRepository.save(sessions).complete();
 	}
 
@@ -112,29 +81,25 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 	}
 
 	@Override
-	public void delete(User user) {
-		List<SessionGae> sessions = listSessions(user);
-		List<SessionId> sessionIds = sessionIdRepository.loadByField("session", sessions);
-		sessionIdRepository.delete(sessionIds).complete();
-		sessionRepository.delete(sessions).complete();
-	}
-
-	@Override
 	public List<SessionGae> listSessions(User user) {
 		return sessionRepository.loadByField("user", user);
 	}
 
 	@Override
-	public Map<User, List<SessionGae>> listSessions(List<User> users) {
+	public <U extends User> Map<U, List<SessionGae>> listSessions(List<U> users) {
 		List<SessionGae> sessions = sessionRepository.loadByField("user", users);
-		return UserSessionLookup.from(sessions);
+		return (Map<U, List<SessionGae>>) UserSessionLookup.from(sessions);
 	}
 
 	@Override
-	public List<SessionGae> listSessions(User user, String channel) {
-		// TODO - v3 - introduce the idea of channels to sessions as a whole
-		return null;
+	public List<SessionGae> deleteFor(User user) {
+		List<SessionGae> sessions = listSessions(user);
+		List<SessionId> sessionIds = sessionIdRepository.loadByField("session", sessions);
+		sessionIdRepository.delete(sessionIds).complete();
+		sessionRepository.delete(sessions).complete();
+		return sessions;
 	}
 
 	private static final ETransformer<Collection<SessionGae>, Map<User, List<SessionGae>>> UserSessionLookup = Expressive.Transformers.toBeanLookup("user", SessionGae.class);
+
 }

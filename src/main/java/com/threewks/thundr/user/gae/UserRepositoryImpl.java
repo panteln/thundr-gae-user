@@ -23,18 +23,15 @@ import java.util.List;
 
 import com.atomicleopard.expressive.Cast;
 import com.googlecode.objectify.ObjectifyFactory;
-import com.threewks.thundr.gae.objectify.repository.Repository;
 import com.threewks.thundr.gae.objectify.repository.StringRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
-import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
-import com.threewks.thundr.user.gae.authentication.AuthenticationContextGae;
 import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
-public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> implements UserRepository<U>, Repository<U, String> {
+public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> implements UserRepositoryGae<U> {
 
 	public UserRepositoryImpl(Class<U> entityType, SearchConfig searchConfig) {
 		super(entityType, searchConfig);
@@ -89,7 +86,6 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 
 	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
 		objectifyFactory.register(UserGae.class);
-		objectifyFactory.register(AuthenticationContextGae.class);
 		objectifyFactory.register(SessionId.class);
 		objectifyFactory.register(SessionGae.class);
 		objectifyFactory.register(PasswordAuthentication.class);

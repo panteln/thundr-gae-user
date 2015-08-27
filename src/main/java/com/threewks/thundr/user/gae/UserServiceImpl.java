@@ -23,35 +23,33 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.search.Is;
 import com.threewks.thundr.search.Search;
-import com.threewks.thundr.session.SessionRepository;
+import com.threewks.thundr.session.SessionService;
 import com.threewks.thundr.user.BaseUserService;
 import com.threewks.thundr.user.User;
-import com.threewks.thundr.user.authentication.AuthenticationContextRepository;
 
 public class UserServiceImpl extends BaseUserService<UserGae> implements UserServiceGae {
-	private UserRepositoryImpl<UserGae> userRepository;
-	private SessionRepository sessionRepository;
+	protected UserRepositoryGae<UserGae> userRepositoryGae;
 
-	public UserServiceImpl(SessionRepository sessionRepository, UserRepositoryImpl<UserGae> userRepository, AuthenticationContextRepository authenticationContextRepository) {
-		super(sessionRepository, userRepository, authenticationContextRepository);
-		this.userRepository = userRepository;
+	public UserServiceImpl(UserRepositoryGae<UserGae> userRepository, SessionService sessionService) {
+		super(userRepository, sessionService);
+		this.userRepositoryGae = userRepository;
 	}
 
 	@Override
 	public UserGae get(String username) {
-		return userRepository.load(username);
+		return userRepositoryGae.load(username);
 	}
 
 	@Override
 	public UserGae put(UserGae user) {
-		return userRepository.save(user).complete();
+		return userRepositoryGae.save(user).complete();
 	}
 
 	@Override
 	public boolean delete(String username) {
 		User user = get(username);
 		if (user != null) {
-			userRepository.deleteByKey(username).complete();
+			userRepositoryGae.deleteByKey(username).complete();
 		}
 		return user != null;
 	}
@@ -63,7 +61,7 @@ public class UserServiceImpl extends BaseUserService<UserGae> implements UserSer
 	}
 
 	Search<UserGae, String> buildSearch(String email, int limit) {
-		Search<UserGae, String> query = userRepository.search();
+		Search<UserGae, String> query = userRepositoryGae.search();
 
 		if (StringUtils.isNotBlank(email)) {
 			query = query.field(UserGae.Fields.Email, Is.Is, email);

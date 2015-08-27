@@ -24,7 +24,8 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.session.Session;
-import com.threewks.thundr.user.gae.authentication.AuthenticationContextGae;
+import com.threewks.thundr.session.SessionState;
+import com.threewks.thundr.user.User;
 
 // TODO - v3 - How do we clean up sessions and SessionId - a last used timestamp and cron?
 // thats pretty heavy on writes
@@ -36,9 +37,7 @@ public class SessionGae implements Session {
 
 	@Index
 	private Ref<UserGae> user;
-
-	@Index
-	private Ref<AuthenticationContextGae> authContext;
+	private SessionState sessionState = SessionState.Anonymous;
 
 	public SessionGae() {
 		this.id = UUID.randomUUID().toString();
@@ -49,23 +48,59 @@ public class SessionGae implements Session {
 		return UUID.fromString(id);
 	}
 
-	public UserGae getUser() {
-		return user == null ? null : user.get();
+	@Override
+	public <U extends User> U getUser() {
+		return user == null ? null : (U) user.get();
 	}
 
-	public void setUser(UserGae user) {
-		this.user = user == null ? null : Ref.create(user);
+	@Override
+	public SessionState getSessionState() {
+		return this.sessionState;
 	}
 
-	public AuthenticationContextGae getAuthContext() {
-		return authContext == null ? null : authContext.get();
+	@Override
+	public boolean is(SessionState state) {
+		return this.sessionState == state;
 	}
 
-	public Ref<AuthenticationContextGae> getAuthContextRef() {
-		return authContext;
+	@Override
+	public boolean isAnonymous() {
+		return is(SessionState.Anonymous);
 	}
 
-	public void setAuthContext(AuthenticationContextGae authContext) {
-		this.authContext = authContext == null ? null : Ref.create(authContext);
+	@Override
+	public boolean isIdentified() {
+		return is(SessionState.Identified);
+	}
+
+	@Override
+	public boolean isAuthenticated() {
+		return is(SessionState.Authenticated);
+	}
+
+	@Override
+	public Session anonymise() {
+		this.sessionState = SessionState.Anonymous;
+		this.user = null;
+		return this;
+	}
+
+	@Override
+	public Session identify(User user) {
+		this.sessionState = SessionState.Identified;
+		this.user = user(user);
+		return this;
+	}
+
+	@Override
+	public Session authenticate(User user) {
+		this.sessionState = SessionState.Authenticated;
+		this.user = user(user);
+		return this;
+	}
+
+	protected Ref<UserGae> user(User user) {
+		UserGae userGae = (UserGae) user;
+		return Ref.create(userGae);
 	}
 }

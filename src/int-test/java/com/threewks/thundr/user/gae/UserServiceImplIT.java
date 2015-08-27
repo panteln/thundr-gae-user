@@ -30,11 +30,9 @@ import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.search.gae.mediator.FieldMediatorSet;
 import com.threewks.thundr.search.gae.meta.IndexTypeLookup;
 import com.threewks.thundr.session.Session;
+import com.threewks.thundr.session.SessionService;
+import com.threewks.thundr.session.SessionServiceImpl;
 import com.threewks.thundr.transformer.TransformerManager;
-import com.threewks.thundr.user.authentication.AuthenticatedSession;
-import com.threewks.thundr.user.authentication.AuthenticationContextRepository;
-import com.threewks.thundr.user.gae.authentication.AuthenticationContextGae;
-import com.threewks.thundr.user.gae.authentication.AuthenticationContextRepositoryImpl;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserServiceImplIT {
@@ -42,24 +40,26 @@ public class UserServiceImplIT {
 	@Rule
 	public SetupAppengine setupAppengine = new SetupAppengine();
 	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, AuthenticationContextGae.class, SessionId.class, PasswordAuthentication.class);
+	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, SessionId.class, PasswordAuthentication.class);
 
 	private String username = "username";
 	private UserServiceImpl service;
 	private UserGae user;
 	private PasswordAuthentication password;
 	private SessionRepositoryGae sessionRepository;
+	private SessionService<SessionGae> sessionService;
 
 	@Before
 	public void before() {
 		user = new UserGae(username);
 		password = new PasswordAuthentication(username, "password");
 
+		
 		sessionRepository = new SessionRepositoryGae();
+		sessionService = new SessionServiceImpl<>(sessionRepository);
 		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, new SearchConfig(TransformerManager.createWithDefaults(), new FieldMediatorSet(),
 				new IndexTypeLookup()));
-		AuthenticationContextRepository authenticationContextRepository = new AuthenticationContextRepositoryImpl();
-		service = new UserServiceImpl(sessionRepository, userRepository, authenticationContextRepository);
+		service = new UserServiceImpl(userRepository, sessionService);
 	}
 
 	@Test
@@ -70,10 +70,10 @@ public class UserServiceImplIT {
 		assertThat(service.get(username), is(notNullValue()));
 
 		Session session = sessionRepository.create();
-		AuthenticatedSession loggedIn = service.login(new PasswordAuthentication(username, "password"), "password", session);
+		Session loggedIn = service.login(new PasswordAuthentication(username, "password"), "password", session);
 		assertThat(loggedIn, is(notNullValue()));
-		assertThat(loggedIn.getSession(), is(session));
+		assertThat(loggedIn, is(session));
 		assertThat(loggedIn.<UserGae> getUser(), is(user));
-		assertThat(loggedIn.getAuthenticationContext(), is(notNullValue()));
+		assertThat(loggedIn.isAuthenticated(), is(true));
 	}
 }

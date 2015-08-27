@@ -37,25 +37,22 @@ import com.threewks.thundr.search.OrderComponent;
 import com.threewks.thundr.search.QueryComponent;
 import com.threewks.thundr.search.Search;
 import com.threewks.thundr.search.test.MockSearch;
-import com.threewks.thundr.session.SessionRepository;
-import com.threewks.thundr.user.authentication.AuthenticationContextRepository;
+import com.threewks.thundr.session.SessionService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
 
 	public static final String USERNAME = "username";
 	@Mock
-	private SessionRepository<SessionGae> sessionRepository;
+	private SessionService sessionService;
 	@Mock
 	private UserRepositoryImpl<UserGae> userRepository;
-	@Mock
-	private AuthenticationContextRepository authenticationContextRepository;
 
-	UserServiceImpl userServiceImpl;
+	private UserServiceImpl userService;
 
 	@Before
 	public void setUp() throws Exception {
-		userServiceImpl = new UserServiceImpl(sessionRepository, userRepository, authenticationContextRepository);
+		userService = new UserServiceImpl(userRepository, sessionService);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,7 +61,7 @@ public class UserServiceImplTest {
 		UserGae user = createUser(USERNAME);
 		AsyncResult<UserGae> async = mock(AsyncResult.class);
 		when(userRepository.save(user)).thenReturn(async);
-		userServiceImpl.put(user);
+		userService.put(user);
 		verify(userRepository, times(1)).save(user);
 	}
 
@@ -77,7 +74,7 @@ public class UserServiceImplTest {
 		AsyncResult<Void> async = mock(AsyncResult.class);
 		when(userRepository.deleteByKey(anyString())).thenReturn(async);
 
-		boolean deleted = userServiceImpl.delete(USERNAME);
+		boolean deleted = userService.delete(USERNAME);
 		assertThat(deleted, is(true));
 		verify(userRepository, times(1)).deleteByKey(USERNAME);
 	}
@@ -88,7 +85,7 @@ public class UserServiceImplTest {
 		MockSearch<UserGae, String> search = new MockSearch<UserGae, String>(list(user), null);
 		when(userRepository.search()).thenReturn(search);
 
-		List<UserGae> result = userServiceImpl.search("test@mail.com", 100);
+		List<UserGae> result = userService.search("test@mail.com", 100);
 		assertThat(result, hasItem(user));
 	}
 
@@ -96,7 +93,7 @@ public class UserServiceImplTest {
 	public void shouldSearchByEmailAscendingWithLimit() {
 		when(userRepository.search()).thenReturn(new MockSearch<UserGae, String>(null, list("1", "2", "3")));
 
-		Search<UserGae, String> search = userServiceImpl.buildSearch("test@mail.com", 100);
+		Search<UserGae, String> search = userService.buildSearch("test@mail.com", 100);
 		assertThat(search.limit(), is(100));
 		assertThat(search.order(), hasItem(OrderComponent.forFieldAscending("email")));
 		assertThat(search.query(), hasItem(QueryComponent.forFieldQuery("email", Is.Is, "test@mail.com")));
