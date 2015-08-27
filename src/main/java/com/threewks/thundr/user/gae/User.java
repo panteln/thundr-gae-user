@@ -17,21 +17,17 @@
  */
 package com.threewks.thundr.user.gae;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.search.SearchId;
 import com.threewks.thundr.search.SearchIndex;
+import com.threewks.thundr.user.Organisation;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+
+import java.util.*;
 
 @Entity(name = "thundrUser")
 public class User implements com.threewks.thundr.user.User {
@@ -63,6 +59,8 @@ public class User implements com.threewks.thundr.user.User {
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
 
+	protected Ref<Organisation> organisation;
+
 	protected User() {
 
 	}
@@ -70,6 +68,19 @@ public class User implements com.threewks.thundr.user.User {
 	public User(String username) {
 		this.username = StringUtils.trimToEmpty(username);
 		this.createdAt = new DateTime().getMillis();
+	}
+
+	public User(String username, Organisation organisation) {
+
+	}
+
+	@Override
+	public Organisation getOrganistion() {
+		if (organisation == null) {
+			return null;
+		}
+
+		return organisation.get();
 	}
 
 	@Override
