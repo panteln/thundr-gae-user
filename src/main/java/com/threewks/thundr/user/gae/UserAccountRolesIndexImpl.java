@@ -6,25 +6,24 @@ import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Parent;
 
 @Entity
-public class UserAccountRolesIndexImpl<A extends Account, U extends User> {
+public class UserAccountRolesIndexImpl {
 
-	@Parent
-	protected Ref<A> account;
 	@Id
 	protected String id;
-	protected Ref<U> user;
+	@Parent
+	protected Ref<Account> account;
+	protected Ref<UserAccountRolesImpl> roles;
 
-	public UserAccountRolesIndexImpl(A account, U user) {
+	public UserAccountRolesIndexImpl(Account account, UserAccountRolesImpl roles) {
+		this.id = roles.getUser().getUsername();
 		this.account = Ref.create(account);
-		this.id = user.username;
-		this.user = Ref.create(user);
+		this.roles = Ref.create(roles);
 	}
 
-	public User getUser() {
-		if (user == null) {
-			return null;
-		}
-
-		return user.getValue();
+	public UserAccountRolesImpl getRoles() {
+		return roles.get();
+	}
+	public Ref<UserAccountRolesImpl> getRolesRef() {
+		return roles;
 	}
 }

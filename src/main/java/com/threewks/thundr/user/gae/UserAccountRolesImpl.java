@@ -1,49 +1,44 @@
 package com.threewks.thundr.user.gae;
 
-import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Parent;
-import com.threewks.thundr.user.Roles;
-import org.joda.time.DateTime;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateTime;
+
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Parent;
+import com.threewks.thundr.user.Roles;
+
 @Entity
-public class UserAccountRolesImpl<U extends User, A extends Account> implements Roles {
+public class UserAccountRolesImpl implements Roles {
 
 	@Id
 	protected String id;
 
-	protected Account account;
-
 	@Parent
 	protected Ref<User> user;
+	protected Ref<Account> account;
+
 	protected Set<String> roles = new LinkedHashSet<>();
+	protected DateTime created = new DateTime();
 	protected DateTime lastUpdated;
 
-	public UserAccountRolesImpl(A account, U user, Set<String> roles) {
-		this.id = user.username + account.getId();
-		this.user = (Ref<User>) Ref.create(user);
-		this.account = account;
+	public UserAccountRolesImpl(Account account, User user, Set<String> roles) {
+		setAccountAndUser(account, user);
 		this.roles.addAll(roles);
 		this.lastUpdated = DateTime.now();
 	}
 
-	@Override
 	public User getUser() {
-		if (user == null) {
-			return null;
-		}
-		return user.get();
+		return user == null ? null : user.get();
 	}
 
-	@Override
 	public Account getAccount() {
-		return account;
+		return account == null ? null : account.get();
 	}
 
 	@Override
@@ -57,17 +52,22 @@ public class UserAccountRolesImpl<U extends User, A extends Account> implements 
 	}
 
 	@Override
-	public void addRoles(List roles) {
+	public void addRoles(List<String> roles) {
 		this.roles.addAll(roles);
 	}
 
 	@Override
-	public void removeRoles(List roles) {
+	public void removeRoles(List<String> roles) {
 		this.roles.removeAll(roles);
 	}
 
-	@Override
 	public DateTime getLastUpdated() {
 		return this.lastUpdated;
+	}
+
+	protected void setAccountAndUser(Account account, User user) {
+		this.id = user.username + account.getId();
+		this.user = Ref.create(user);
+		this.account = Ref.create(account);
 	}
 }

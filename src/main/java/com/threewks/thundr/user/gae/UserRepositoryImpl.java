@@ -17,11 +17,14 @@
  */
 package com.threewks.thundr.user.gae;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 import com.atomicleopard.expressive.Cast;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.threewks.thundr.gae.objectify.repository.Repository;
 import com.threewks.thundr.gae.objectify.repository.StringRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
+import com.threewks.thundr.user.Organisation;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
@@ -29,12 +32,16 @@ import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
-
 public class UserRepositoryImpl<U extends User> extends StringRepository<U> implements UserRepository<U>, Repository<U, String> {
 
 	public UserRepositoryImpl(Class<U> entityType, SearchConfig searchConfig) {
 		super(entityType, searchConfig);
+	}
+
+	@Override
+	public Organisation get(String username) {
+		// TODO - v3 - sean
+		throw new UnsupportedOperationException("To be implemented");
 	}
 
 	@SuppressWarnings("unchecked")
