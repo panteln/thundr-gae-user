@@ -1,36 +1,33 @@
 package com.threewks.thundr.user.gae;
 
+import static com.atomicleopard.expressive.Expressive.list;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.atomicleopard.expressive.Cast;
-import com.atomicleopard.expressive.ETransformer;
-import com.atomicleopard.expressive.Expressive;
-import com.atomicleopard.expressive.transform.CollectionTransformer;
-import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.VoidWork;
-import com.googlecode.objectify.cmd.LoadIds;
+import com.googlecode.objectify.Key;
 import com.threewks.thundr.gae.objectify.repository.StringRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.AccountRepository;
 import com.threewks.thundr.user.Roles;
-import com.threewks.thundr.user.User;
+import com.threewks.thundr.user.RolesImpl;
 
-public class AccountRepositoryImpl<A extends Account, U extends UserGae> implements AccountRepository<A, U> {
-
-	private final ETransformer<Collection<UserAccountRolesImpl>, Map<A, UserAccountRolesImpl>> AccountRolesLookup = Expressive.Transformers.toKeyBeanLookup("account", UserAccountRolesImpl.class);
-	private final ETransformer<Collection<UserAccountRolesImpl>, Map<U, UserAccountRolesImpl>> UserRolesLookup = Expressive.Transformers.toKeyBeanLookup("user", UserAccountRolesImpl.class);
-	private static final CollectionTransformer<UserAccountRolesIndexImpl, Ref<UserAccountRolesImpl>> RolesIndexToRolesRef = Expressive.Transformers.transformAllUsing(Expressive.Transformers
-			.<UserAccountRolesIndexImpl, Ref<UserAccountRolesImpl>> toProperty("rolesRef", UserAccountRolesIndexImpl.class));
+public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> implements AccountRepository<A, U> {
 
 	private StringRepository<A> delegateRepository;
+	private UserRepositoryGae<U> userRepository;
 
-	public AccountRepositoryImpl(Class<A> entityType, SearchConfig searchConfig) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public AccountRepositoryImpl(UserRepositoryGae<U> userRepository, SearchConfig searchConfig) {
+		this((Class) AccountGae.class, userRepository, searchConfig);
+	}
+
+	public AccountRepositoryImpl(Class<A> entityType, UserRepositoryGae<U> userRepository, SearchConfig searchConfig) {
 		this.delegateRepository = new StringRepository<>(entityType, searchConfig);
+		this.userRepository = userRepository;
 	}
 
 	@Override
@@ -39,79 +36,102 @@ public class AccountRepositoryImpl<A extends Account, U extends UserGae> impleme
 		return account;
 	}
 
+	/**
+	 * This is not a transactional operation, if you require this to be transactional
+	 * you need to remove the users in batches yourself, then delete the empty account
+	 * - this probably should happen with sequential task queue jobs.
+	 */
 	@Override
 	public A delete(A account) {
+		List<String> usernames = account.getUsernames();
+		List<U> users = userRepository.load(usernames);
+		for (U user : users) {
+			user.removeAccount(account);
+		}
+		// Order of these is important
 		delegateRepository.delete(account).complete();
+		userRepository.save(users).complete();
 		return account;
 	}
 
 	@Override
-	public List<A> delete(List<A> accounts) {
-		delegateRepository.delete(accounts).complete();
-		return accounts;
-	}
-
-	@Override
 	public Roles getRoles(A account, U user) {
-		UserAccountRolesImpl roles = load(user).id(user.username + account.getId()).now();
-		return roles;
-	}
-
-	private LoadIds<UserAccountRolesImpl> load(User user) {
-		return ofy().load().type(UserAccountRolesImpl.class).parent(user);
+		return new RolesImpl(user.getRoles(account));
 	}
 
 	@Override
 	public Roles putRoles(A account, U user, Roles roles) {
-		final UserAccountRolesImpl userAccountRoles = Cast.as(roles, UserAccountRolesImpl.class);
-		userAccountRoles.setAccountAndUser(account, user);
-		final UserAccountRolesIndexImpl userAccountRolesIndex = new UserAccountRolesIndexImpl(account, userAccountRoles);
-		ofy().transact(new VoidWork() {
-			@Override
-			public void vrun() {
-				ofy().save().entities(userAccountRoles, userAccountRolesIndex).now();
-			}
-		});
-
-		return userAccountRoles;
+		user.setRoles(account, roles.getRoles());
+		account.addUser(user);
+		boolean updateAccount = !account.hasUser(user);
+		userRepository.save(user).complete();
+		if (updateAccount) {
+			delegateRepository.save(account).complete();
+		}
+		return roles;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map<A, Roles> getAccounts(U user) {
-		List<UserAccountRolesImpl> roles = ofy().load().type(UserAccountRolesImpl.class).ancestor(user).list();
-		Map<A, UserAccountRolesImpl> result = AccountRolesLookup.from(roles);
-		return (Map) result;
+	public A addUserToAccount(U user, A account) {
+		account.addUser(user);
+		user.addAccount(account);
+		userRepository.save(user).complete();
+		delegateRepository.save(account).complete();
+		return account;
+	}
+
+	@Override
+	public List<A> getAccounts(U user) {
+		// TODO - Enhancement: Given the potential for writes across entity groups to fail,
+		// we could validate the returned accounts have the username in their set of users
+		// to ensure a consistent view.
+		Collection<Key<AccountGae>> accounts = user.getAccounts();
+		return (List) list(ofy().load().keys(accounts).values()).removeItems((AccountGae) null);
 	}
 
 	@Override
 	public List<U> getUsers(A account) {
-		return new ArrayList<>(getUserRoles(account).keySet());
+		List<String> usernames = account.getUsernames();
+		return userRepository.load(usernames);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Map<U, Roles> getUserRoles(A account) {
-		List<UserAccountRolesIndexImpl> rolesIndexes = ofy().load().type(UserAccountRolesIndexImpl.class).ancestor(account).list();
-		List<Ref<UserAccountRolesImpl>> rolesRefs = RolesIndexToRolesRef.from(rolesIndexes);
-		Collection<UserAccountRolesImpl> roles = ofy().load().refs(rolesRefs).values();
-		Map<U, UserAccountRolesImpl> usersAndRoles = UserRolesLookup.from(roles);
-		return (Map) usersAndRoles;
+		List<U> users = getUsers(account);
+		Map<U, Roles> results = new LinkedHashMap<>();
+		for (U user : users) {
+			results.put(user, new RolesImpl(user.getRoles(account)));
+		}
+		return results;
 	}
 
 	@Override
-	public A get(String accountId) {
+	public A getAccount(String accountId) {
 		return delegateRepository.load(accountId);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void removeUsersFromAccount(A account, List<U> user) {
-		// TODO - v3 - sean
+	public void removeUsersFromAccount(A account, List<U> users) {
+		account.removeUsers((List) users);
+		for (U user : users) {
+			user.removeAccount(account);
+		}
+		// Order here is important
+		delegateRepository.save(account).complete();
+		userRepository.save(users).complete();
 	}
 
 	@Override
 	public void removeUserFromAccounts(U user, List<A> accounts) {
-		// TODO - v3 - sean
+		for (A account : accounts) {
+			account.removeUser(user);
+			user.removeAccount(account);
+		}
+		// Order is important
+		delegateRepository.save(accounts).complete();
+		userRepository.save(user).complete();
+
 	}
 
 }

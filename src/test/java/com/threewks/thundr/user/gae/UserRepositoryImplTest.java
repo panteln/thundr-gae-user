@@ -30,7 +30,7 @@ public class UserRepositoryImplTest {
 	@Test
 	public void registerObjectifyClasses_state_expectation() {
 		ObjectifyFactory objectifyFactory = mock(ObjectifyFactory.class);
-		UserRepositoryImpl.registerObjectifyClasses(objectifyFactory);
+		UserGaeModule.registerObjectifyClasses(objectifyFactory);
 		verify(objectifyFactory, times(1)).register(SessionGae.class);
 		verify(objectifyFactory, times(1)).register(UserGae.class);
 		verify(objectifyFactory, times(1)).register(PasswordAuthentication.class);

@@ -29,9 +29,12 @@ import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.session.Session;
 import com.threewks.thundr.session.SessionRepository;
 import com.threewks.thundr.session.SessionService;
+import com.threewks.thundr.user.AccountRepository;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserService;
 import com.threewks.thundr.user.bind.UserBinder;
+import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
+import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserGaeModule extends BaseModule {
 	@Override
@@ -50,8 +53,9 @@ public class UserGaeModule extends BaseModule {
 		SearchConfig searchConfig = injectionContext.get(SearchConfig.class);
 		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<>(UserGae.class, searchConfig);
 		injectionContext.inject(userRepository).as(UserRepository.class, UserRepositoryGae.class, UserRepositoryImpl.class);
-		injectionContext.inject(UserServiceImpl.class).as(UserService.class, UserServiceGae.class, UserServiceImpl.class);
+		injectionContext.inject(UserServiceGaeImpl.class).as(UserService.class, UserServiceGae.class, UserServiceGaeImpl.class);
 		injectionContext.inject(SessionRepositoryGae.class).as(SessionRepository.class);
+		injectionContext.inject(AccountRepositoryImpl.class).as(AccountRepositoryImpl.class, AccountRepository.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -66,6 +70,15 @@ public class UserGaeModule extends BaseModule {
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
 		ObjectifyFactory objectifyFactory = ObjectifyService.factory();
-		UserRepositoryImpl.registerObjectifyClasses(objectifyFactory);
+		registerObjectifyClasses(objectifyFactory);
+	}
+
+	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
+		objectifyFactory.register(UserGae.class);
+		objectifyFactory.register(SessionId.class);
+		objectifyFactory.register(SessionGae.class);
+		objectifyFactory.register(PasswordAuthentication.class);
+		objectifyFactory.register(OAuthAuthentication.class);
+		objectifyFactory.register(AccountGae.class);
 	}
 }

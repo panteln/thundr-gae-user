@@ -24,13 +24,13 @@ import org.apache.commons.lang3.StringUtils;
 import com.threewks.thundr.search.Is;
 import com.threewks.thundr.search.Search;
 import com.threewks.thundr.session.SessionService;
-import com.threewks.thundr.user.BaseUserService;
+import com.threewks.thundr.user.UserServiceImpl;
 import com.threewks.thundr.user.User;
 
-public class UserServiceImpl extends BaseUserService<UserGae> implements UserServiceGae {
+public class UserServiceGaeImpl extends UserServiceImpl<UserGae> implements UserServiceGae {
 	protected UserRepositoryGae<UserGae> userRepositoryGae;
 
-	public UserServiceImpl(UserRepositoryGae<UserGae> userRepository, SessionService sessionService) {
+	public UserServiceGaeImpl(UserRepositoryGae<UserGae> userRepository, SessionService sessionService) {
 		super(userRepository, sessionService);
 		this.userRepositoryGae = userRepository;
 	}

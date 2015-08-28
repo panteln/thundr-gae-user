@@ -90,12 +90,4 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 		}
 		return objectifyAuthentication;
 	}
-
-	public static void registerObjectifyClasses(ObjectifyFactory objectifyFactory) {
-		objectifyFactory.register(UserGae.class);
-		objectifyFactory.register(SessionId.class);
-		objectifyFactory.register(SessionGae.class);
-		objectifyFactory.register(PasswordAuthentication.class);
-		objectifyFactory.register(OAuthAuthentication.class);
-	}
 }

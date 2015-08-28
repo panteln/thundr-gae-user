@@ -48,11 +48,11 @@ public class UserServiceImplTest {
 	@Mock
 	private UserRepositoryImpl<UserGae> userRepository;
 
-	private UserServiceImpl userService;
+	private UserServiceGaeImpl userService;
 
 	@Before
 	public void setUp() throws Exception {
-		userService = new UserServiceImpl(userRepository, sessionService);
+		userService = new UserServiceGaeImpl(userRepository, sessionService);
 	}
 
 	@SuppressWarnings("unchecked")

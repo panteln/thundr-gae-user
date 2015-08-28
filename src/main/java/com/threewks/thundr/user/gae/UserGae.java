@@ -17,6 +17,20 @@
  */
 package com.threewks.thundr.user.gae;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+
+import com.atomicleopard.expressive.Expressive;
+import com.atomicleopard.expressive.transform.CollectionTransformer;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -24,10 +38,6 @@ import com.googlecode.objectify.annotation.Index;
 import com.threewks.thundr.search.SearchId;
 import com.threewks.thundr.search.SearchIndex;
 import com.threewks.thundr.user.Organisation;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-
-import java.util.*;
 
 @Entity(name = "thundrUser")
 public class UserGae implements com.threewks.thundr.user.User {
@@ -40,6 +50,9 @@ public class UserGae implements com.threewks.thundr.user.User {
 		public static final String EmailUser = null;
 		public static final String EmailDomain = null;
 	}
+
+	public static final CollectionTransformer<UserGae, String> ToNames = Expressive.Transformers
+			.transformAllUsing(Expressive.Transformers.<UserGae, String> toProperty(Fields.Username, UserGae.class));
 
 	@Id
 	@Index
@@ -59,6 +72,7 @@ public class UserGae implements com.threewks.thundr.user.User {
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
 	protected Ref<Organisation> organisation;
+	protected Map<Key<AccountGae>, Set<String>> accounts = new HashMap<>();
 
 	protected UserGae() {
 
@@ -197,5 +211,30 @@ public class UserGae implements com.threewks.thundr.user.User {
 	@Override
 	public void removeRole(String role) {
 		this.roles.remove(role);
+	}
+
+	public void addAccount(AccountGae account) {
+		Key<AccountGae> ref = Key.create(account);
+		if (!accounts.containsKey(ref)) {
+			accounts.put(ref, Collections.singleton("member"));
+		}
+	}
+
+	public void removeAccount(AccountGae account) {
+		Ref<AccountGae> ref = Ref.create(account);
+		accounts.remove(ref);
+	}
+
+	public Collection<Key<AccountGae>> getAccounts() {
+		return accounts.keySet();
+	}
+
+	public Set<String> getRoles(AccountGae account) {
+		Ref<AccountGae> ref = Ref.create(account);
+		return accounts.get(ref);
+	}
+
+	public void setRoles(AccountGae accountGae, Set<String> roles) {
+		this.accounts.put(Key.create(accountGae), roles);
 	}
 }

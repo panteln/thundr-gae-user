@@ -43,7 +43,7 @@ public class UserServiceImplIT {
 	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, SessionId.class, PasswordAuthentication.class);
 
 	private String username = "username";
-	private UserServiceImpl service;
+	private UserServiceGaeImpl service;
 	private UserGae user;
 	private PasswordAuthentication password;
 	private SessionRepositoryGae sessionRepository;
@@ -59,7 +59,7 @@ public class UserServiceImplIT {
 		sessionService = new SessionServiceImpl<>(sessionRepository);
 		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, new SearchConfig(TransformerManager.createWithDefaults(), new FieldMediatorSet(),
 				new IndexTypeLookup()));
-		service = new UserServiceImpl(userRepository, sessionService);
+		service = new UserServiceGaeImpl(userRepository, sessionService);
 	}
 
 	@Test
