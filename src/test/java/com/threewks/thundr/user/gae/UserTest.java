@@ -25,6 +25,8 @@ import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.atomicleopard.expressive.Expressive.*;
+
 public class UserTest {
 	private DateTime now = new DateTime(2013, 5, 5, 10, 0, 0, 0);
 
@@ -107,6 +109,14 @@ public class UserTest {
 		user.setLastLogin(new DateTime());
 
 		assertThat(user.getLastLogin(), is(notNullValue()));
+	}
+	
+	@Test
+	public void shouldSetRoles() {
+		User user = new User();
+		assertThat(user.getRoles().isEmpty(), is(true));
+		user.setRoles(list("role1", "role2"));
+		assertThat(user.getRoles(), is(set("role1", "role2")));
 	}
 
 }
