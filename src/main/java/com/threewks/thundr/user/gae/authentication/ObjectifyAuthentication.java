@@ -40,7 +40,7 @@ public interface ObjectifyAuthentication<Self extends ObjectifyAuthentication<Se
 	 * Find the authentication matching the given one - that is the authentication that is of the same type for the same user.
 	 * 
 	 * @param authentication
-	 * @return
+	 * @return the matching authentication, or null if none found
 	 */
 	public Self getMatchingAuthentication(Objectify ofy, Self authentication);
 }
