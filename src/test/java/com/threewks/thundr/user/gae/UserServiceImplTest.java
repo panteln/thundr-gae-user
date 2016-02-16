@@ -20,7 +20,6 @@ package com.threewks.thundr.user.gae;
 import static com.atomicleopard.expressive.Expressive.list;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.threewks.thundr.gae.objectify.repository.AsyncResult;
 import com.threewks.thundr.search.Is;
 import com.threewks.thundr.search.OrderComponent;
 import com.threewks.thundr.search.QueryComponent;
@@ -44,35 +42,29 @@ public class UserServiceImplTest {
 
 	public static final String USERNAME = "username";
 	@Mock
-	private SessionService sessionService;
+	private SessionService<SessionGae> sessionService;
 	@Mock
 	private UserRepositoryImpl<UserGae> userRepository;
 
-	private UserServiceGaeImpl userService;
+	private UserServiceGaeImpl<UserGae, SessionGae> userService;
 
 	@Before
 	public void setUp() throws Exception {
-		userService = new UserServiceGaeImpl(userRepository, sessionService);
+		userService = new UserServiceGaeImpl<>(userRepository, sessionService);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldSaveUserAndIndexToSearchService() {
 		UserGae user = createUser(USERNAME);
-		AsyncResult<UserGae> async = mock(AsyncResult.class);
-		when(userRepository.save(user)).thenReturn(async);
 		userService.put(user);
-		verify(userRepository, times(1)).save(user);
+		verify(userRepository, times(1)).put(user);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldDeleteUserAndRemoveFromIndex() {
 		UserGae user = createUser(USERNAME);
 
-		when(userRepository.load(USERNAME)).thenReturn(user);
-		AsyncResult<Void> async = mock(AsyncResult.class);
-		when(userRepository.deleteByKey(anyString())).thenReturn(async);
+		when(userRepository.get(USERNAME)).thenReturn(user);
 
 		boolean deleted = userService.delete(USERNAME);
 		assertThat(deleted, is(true));

@@ -85,29 +85,29 @@ public class UserTest {
 	@Test
 	public void shouldAllowSettingOfRoles() {
 		UserGae user = new UserGae();
-		assertThat(user.getRoles().isEmpty(), is(true));
-		assertThat(user.hasRole("Role"), is(false));
-		assertThat(user.hasRoles("Role", "Role2"), is(false));
-		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
+		assertThat(user.getRoles().getRoles().isEmpty(), is(true));
+		assertThat(user.getRoles().hasRole("Role"), is(false));
+		assertThat(user.getRoles().hasRoles("Role", "Role2"), is(false));
+		assertThat(user.getRoles().hasRoles(list("Role", "Role2")), is(false));
 
-		user.addRole("Role");
-		assertThat(user.hasRole("Role"), is(true));
-		assertThat(user.hasRoles("Role", "Role2"), is(false));
-		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
+		user.getRoles().addRole("Role");
+		assertThat(user.getRoles().hasRole("Role"), is(true));
+		assertThat(user.getRoles().hasRoles("Role", "Role2"), is(false));
+		assertThat(user.getRoles().hasRoles(list("Role", "Role2")), is(false));
 
-		user.setRoles(list("Role", "Role2"));
+		user.getRoles().setRoles(list("Role", "Role2"));
 
-		assertThat(user.hasRole("Role"), is(true));
-		assertThat(user.hasRoles("Role", "Role2"), is(true));
-		assertThat(user.hasRoles(list("Role", "Role2")), is(true));
+		assertThat(user.getRoles().hasRole("Role"), is(true));
+		assertThat(user.getRoles().hasRoles("Role", "Role2"), is(true));
+		assertThat(user.getRoles().hasRoles(list("Role", "Role2")), is(true));
 
-		user.removeRole("Role");
-		assertThat(user.hasRole("Role"), is(false));
-		assertThat(user.hasRole("Role2"), is(true));
-		assertThat(user.hasRoles("Role"), is(false));
-		assertThat(user.hasRoles("Role2"), is(true));
-		assertThat(user.hasRoles("Role", "Role2"), is(false));
-		assertThat(user.hasRoles(list("Role", "Role2")), is(false));
+		user.getRoles().removeRole("Role");
+		assertThat(user.getRoles().hasRole("Role"), is(false));
+		assertThat(user.getRoles().hasRole("Role2"), is(true));
+		assertThat(user.getRoles().hasRoles("Role"), is(false));
+		assertThat(user.getRoles().hasRoles("Role2"), is(true));
+		assertThat(user.getRoles().hasRoles("Role", "Role2"), is(false));
+		assertThat(user.getRoles().hasRoles(list("Role", "Role2")), is(false));
 	}
 
 	@Test

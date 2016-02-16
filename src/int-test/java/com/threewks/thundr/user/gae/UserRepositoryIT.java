@@ -73,7 +73,7 @@ public class UserRepositoryIT {
 		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
 		userRepository.putAuthentication(user, authentication);
 		
-		UserGae found = userRepository.get(authentication);
+		UserGae found = userRepository.getUser(authentication);
 		assertThat(found, is(notNullValue()));
 		assertThat(found, is(user));
 	}

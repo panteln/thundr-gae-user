@@ -23,14 +23,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.gae.objectify.Refs;
 import com.threewks.thundr.search.SearchIndex;
 import com.threewks.thundr.user.Account;
-import com.threewks.thundr.user.User;
 
-@Entity
+@Entity(name = "thundrAccount")
 public class AccountGae implements Account {
 
 	@Id
@@ -50,21 +51,29 @@ public class AccountGae implements Account {
 
 	protected String description;
 
+	@Index
+	protected Ref<OrganisationGae> organisation;
+
 	protected AccountGae() {
 
 	}
 
 	public AccountGae(String name) {
+		this(name, null);
+	}
+
+	public AccountGae(String name, OrganisationGae organisation) {
 		this.uuid = UUID.randomUUID();
 		this.id = uuid.toString();
 		this.name = name;
+		this.organisation = Refs.ref(organisation);
 	}
 
-	@Override
 	public String getId() {
 		return id;
 	}
 
+	@Override
 	public UUID getUuid() {
 		return uuid;
 	}
@@ -79,7 +88,6 @@ public class AccountGae implements Account {
 		return description;
 	}
 
-	@Override
 	public List<String> getUsernames() {
 		return new ArrayList<>(usernames);
 	}
@@ -104,5 +112,63 @@ public class AccountGae implements Account {
 	public void removeUsers(List<UserGae> users) {
 		List<String> usernames = UserGae.ToNames.from(users);
 		this.usernames.removeAll(usernames);
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AccountGae other = (AccountGae) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	public OrganisationGae getOrganisation() {
+		return Refs.unref(organisation);
+	}
+
+	public void setOrganisation(OrganisationGae organisation) {
+		this.organisation = Refs.ref(organisation);
+	}
+
+	public AccountGae withOrganisation(OrganisationGae organisation) {
+		this.setOrganisation(organisation);
+		return this;
+	}
+
+	public AccountGae withName(String name) {
+		this.setName(name);
+		return this;
+	}
+
+	public AccountGae withDescription(String description) {
+		this.setDescription(description);
+		return this;
 	}
 }

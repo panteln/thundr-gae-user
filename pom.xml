@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>com.threewks.thundr</groupId>
 		<artifactId>thundr-module</artifactId>
-		<version>3.0.0-beta-2</version>
+		<version>3.0.0-beta-3-SNAPSHOT</version>
 	</parent>
 	<artifactId>thundr-gae-user</artifactId>
 	<version>3.0.0-beta-3-SNAPSHOT</version>
@@ -40,8 +40,8 @@
 	</scm>
 
 	<properties>
-		<gae.version>1.9.10</gae.version>
-		<thundr.version>3.0.0-beta-2</thundr.version>
+		<gae.version>1.9.32</gae.version>
+		<thundr.version>${project.version}</thundr.version>
 	</properties>
 
 	<dependencies>

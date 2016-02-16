@@ -19,18 +19,15 @@ package com.threewks.thundr.user.gae;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.atomicleopard.expressive.Cast;
-import com.googlecode.objectify.ObjectifyFactory;
 import com.threewks.thundr.gae.objectify.repository.StringRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
-import com.threewks.thundr.user.Organisation;
 import com.threewks.thundr.user.UserServiceException;
 import com.threewks.thundr.user.authentication.Authentication;
-import com.threewks.thundr.user.gae.authentication.OAuthAuthentication;
 import com.threewks.thundr.user.gae.authentication.ObjectifyAuthentication;
-import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> implements UserRepositoryGae<U> {
 
@@ -38,18 +35,12 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 		super(entityType, searchConfig);
 	}
 
-	@Override
-	public Organisation get(String username) {
-		// TODO - v3 - sean
-		throw new UnsupportedOperationException("To be implemented");
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public U putAuthentication(U user, Authentication authentication) {
 		ObjectifyAuthentication<?> objectifyAuthentication = objectifyAuthentication(authentication);
+		put(user);
 		objectifyAuthentication.setUser(user);
-		update(user);
 		ofy().save().entities(objectifyAuthentication).now();
 		return user;
 	}
@@ -60,18 +51,24 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 	}
 
 	@Override
-	public void update(U user) {
+	public U put(U user) {
 		ofy().save().entity(user).now();
+		return user;
 	}
 
 	@Override
-	public List<U> list(List<String> usernames) {
-		return super.load(usernames);
+	public List<U> list() {
+		return list(200);
+	}
+
+	@Override
+	public List<U> listUsers(Collection<String> usernames) {
+		return super.get(usernames);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public U get(Authentication authentication) {
+	public U getUser(Authentication authentication) {
 		ObjectifyAuthentication<?> objectifyAuthentication = objectifyAuthentication(authentication);
 		return ((U) objectifyAuthentication.getUser(ofy()));
 	}
@@ -89,5 +86,10 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 			throw new UserServiceException("Unable to work with authentication %s, it must be a %s to be stored/found in the datastore", authentication, ObjectifyAuthentication.class.getSimpleName());
 		}
 		return objectifyAuthentication;
+	}
+
+	@Override
+	public U getUser(String username) {
+		return get(username);
 	}
 }

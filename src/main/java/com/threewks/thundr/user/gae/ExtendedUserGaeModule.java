@@ -17,13 +17,17 @@
  */
 package com.threewks.thundr.user.gae;
 
-import java.util.List;
+import com.threewks.thundr.injection.BaseModule;
+import com.threewks.thundr.module.DependencyRegistry;
+import com.threewks.thundr.user.invitation.UserInvitationModule;
+import com.threewks.thundr.user.passwordreset.PasswordResetModule;
 
-import com.threewks.thundr.gae.objectify.repository.AsyncRepository;
-import com.threewks.thundr.user.UserRepository;
-
-public interface UserRepositoryGae<U extends UserGae> extends UserRepository<U>, AsyncRepository<U, String> {
-//	public <O extends OrganisationGae> List<U> listUsers(O organisation);
-//	public <O extends OrganisationGae> O getOrganisation(U user);
-//	public <O extends OrganisationGae> O setOrganisation(U user, O organisation);
+public class ExtendedUserGaeModule extends BaseModule {
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(UserGaeModule.class);
+		dependencyRegistry.addDependency(PasswordResetModule.class);
+		dependencyRegistry.addDependency(UserInvitationModule.class);
+	}
 }

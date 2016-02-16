@@ -26,10 +26,13 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.search.gae.SearchConfig;
-import com.threewks.thundr.session.Session;
 import com.threewks.thundr.session.SessionRepository;
 import com.threewks.thundr.session.SessionService;
 import com.threewks.thundr.user.AccountRepository;
+import com.threewks.thundr.user.AccountService;
+import com.threewks.thundr.user.OrganisationAccountRepository;
+import com.threewks.thundr.user.OrganisationAccountService;
+import com.threewks.thundr.user.OrganisationService;
 import com.threewks.thundr.user.UserRepository;
 import com.threewks.thundr.user.UserService;
 import com.threewks.thundr.user.bind.UserBinder;
@@ -40,9 +43,9 @@ public class UserGaeModule extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 		dependencyRegistry.addDependency(GaeModule.class);
 		dependencyRegistry.addDependency(ObjectifyModule.class);
-		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 	}
 
 	@Override
@@ -55,16 +58,20 @@ public class UserGaeModule extends BaseModule {
 		injectionContext.inject(userRepository).as(UserRepository.class, UserRepositoryGae.class, UserRepositoryImpl.class);
 		injectionContext.inject(UserServiceGaeImpl.class).as(UserService.class, UserServiceGae.class, UserServiceGaeImpl.class);
 		injectionContext.inject(SessionRepositoryGae.class).as(SessionRepository.class);
-		injectionContext.inject(AccountRepositoryImpl.class).as(AccountRepositoryImpl.class, AccountRepository.class);
+		injectionContext.inject(AccountRepositoryImpl.class).as(AccountRepositoryImpl.class, OrganisationAccountRepository.class, AccountRepository.class);
+		
+		injectionContext.inject(AccountServiceImpl.class).as(AccountService.class);
+		injectionContext.inject(OrganisationServiceImpl.class).as(OrganisationService.class);
+		injectionContext.inject(OrganisationAccountServiceImpl.class).as(OrganisationAccountService.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(UpdatableInjectionContext injectionContext) {
-		UserService<UserGae> userService = injectionContext.get(UserService.class);
-		SessionService<Session> sessionService = injectionContext.get(SessionService.class);
+		UserService<UserGae, SessionGae> userService = injectionContext.get(UserService.class);
+		SessionService<SessionGae> sessionService = injectionContext.get(SessionService.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
-		UserBinder<UserGae> userActionMethodBinder = new UserBinder<UserGae>(UserGae.class, userService, sessionService);
+		UserBinder<UserGae, SessionGae> userActionMethodBinder = new UserBinder<>(userService, sessionService);
 		binderRegistry.add(userActionMethodBinder);
 	}
 
@@ -80,5 +87,6 @@ public class UserGaeModule extends BaseModule {
 		objectifyFactory.register(PasswordAuthentication.class);
 		objectifyFactory.register(OAuthAuthentication.class);
 		objectifyFactory.register(AccountGae.class);
+		objectifyFactory.register(OrganisationGae.class);
 	}
 }

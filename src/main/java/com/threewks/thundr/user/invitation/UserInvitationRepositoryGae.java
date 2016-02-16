@@ -15,36 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.user.gae;
+package com.threewks.thundr.user.invitation;
 
 import java.util.UUID;
 
-import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.gae.objectify.repository.UuidRepository;
+import com.threewks.thundr.search.gae.SearchConfig;
 
-@Entity(name = "thundrSessionId")
-public class SessionId {
-	@Id
-	private String id;
-	@Index
-	private Ref<SessionGae> session;
+public class UserInvitationRepositoryGae extends UuidRepository<UserInvitationGae> implements UserInvitationRepository<UserInvitationGae> {
 
-	public SessionId() {
-
+	public UserInvitationRepositoryGae(SearchConfig searchConfig) {
+		super(UserInvitationGae.class, searchConfig);
 	}
 
-	public SessionId(SessionGae session) {
-		this.id = UUID.randomUUID().toString();
-		this.session = Ref.create(session);
+	@Override
+	public UserInvitationGae put(UserInvitationGae invitation) {
+		return super.put(invitation);
 	}
 
-	public String getId() {
-		return id;
+	@Override
+	public UserInvitationGae getInvitation(UUID invitationId) {
+		return get(invitationId);
 	}
 
-	public SessionGae getSession() {
-		return session == null ? null : session.get();
+	@Override
+	public void deleteInvitation(UUID invitationId) {
+		deleteByKey(invitationId);
 	}
 }

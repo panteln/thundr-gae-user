@@ -29,7 +29,6 @@ import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.search.gae.mediator.FieldMediatorSet;
 import com.threewks.thundr.search.gae.meta.IndexTypeLookup;
-import com.threewks.thundr.session.Session;
 import com.threewks.thundr.session.SessionService;
 import com.threewks.thundr.session.SessionServiceImpl;
 import com.threewks.thundr.transformer.TransformerManager;
@@ -43,7 +42,7 @@ public class UserServiceImplIT {
 	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, SessionId.class, PasswordAuthentication.class);
 
 	private String username = "username";
-	private UserServiceGaeImpl service;
+	private UserServiceGaeImpl<UserGae, SessionGae> service;
 	private UserGae user;
 	private PasswordAuthentication password;
 	private SessionRepositoryGae sessionRepository;
@@ -54,12 +53,11 @@ public class UserServiceImplIT {
 		user = new UserGae(username);
 		password = new PasswordAuthentication(username, "password");
 
-		
 		sessionRepository = new SessionRepositoryGae();
 		sessionService = new SessionServiceImpl<>(sessionRepository);
 		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, new SearchConfig(TransformerManager.createWithDefaults(), new FieldMediatorSet(),
 				new IndexTypeLookup()));
-		service = new UserServiceGaeImpl(userRepository, sessionService);
+		service = new UserServiceGaeImpl<>(userRepository, sessionService);
 	}
 
 	@Test
@@ -69,11 +67,9 @@ public class UserServiceImplIT {
 
 		assertThat(service.get(username), is(notNullValue()));
 
-		Session session = sessionRepository.create();
-		Session loggedIn = service.login(new PasswordAuthentication(username, "password"), "password", session);
-		assertThat(loggedIn, is(notNullValue()));
-		assertThat(loggedIn, is(session));
-		assertThat(loggedIn.<UserGae> getUser(), is(user));
-		assertThat(loggedIn.isAuthenticated(), is(true));
+		SessionGae session = sessionRepository.create();
+		UserGae u = service.login(session, new PasswordAuthentication(username, "password"), "password");
+		assertThat(u, is(user));
+		assertThat(session.isAuthenticated(), is(true));
 	}
 }

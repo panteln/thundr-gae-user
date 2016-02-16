@@ -19,7 +19,6 @@ package com.threewks.thundr.user.gae;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,16 +36,10 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 	private UuidRepository<SessionId> sessionIdRepository = new UuidRepository<>(SessionId.class, null);
 
 	@Override
-	public List<String> createSessionToken(SessionGae session, int count) {
-		List<SessionId> ids = new ArrayList<>();
-		List<String> results = new ArrayList<>();
-		for (int i = 0; i < count; i++) {
-			SessionId id = new SessionId(session);
-			ids.add(id);
-			results.add(id.getId());
-		}
-		sessionIdRepository.save(ids).complete();
-		return results;
+	public String createSessionId(SessionGae session) {
+		SessionId id = new SessionId(session);
+		id = sessionIdRepository.put(id);
+		return id.getId();
 	}
 
 	@Override
@@ -65,38 +58,39 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 
 	@Override
 	public SessionGae put(SessionGae session) {
-		return sessionRepository.save(session).complete();
+		return sessionRepository.put(session);
 	}
 
 	@Override
 	public List<SessionGae> put(List<SessionGae> sessions) {
-		return sessionRepository.save(sessions).complete();
+		return sessionRepository.put(sessions);
 	}
 
 	@Override
 	public void delete(SessionGae session) {
-		List<SessionId> sessionIds = sessionIdRepository.loadByField("session", session);
-		sessionIdRepository.delete(sessionIds).complete();
-		sessionRepository.delete(session).complete();
+		List<SessionId> sessionIds = sessionIdRepository.getByField("session", session);
+		sessionIdRepository.delete(sessionIds);
+		sessionRepository.delete(session);
 	}
 
 	@Override
 	public List<SessionGae> listSessions(User user) {
-		return sessionRepository.loadByField("user", user);
+		return sessionRepository.getByField("user", user);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends User> Map<U, List<SessionGae>> listSessions(List<U> users) {
-		List<SessionGae> sessions = sessionRepository.loadByField("user", users);
+		List<SessionGae> sessions = sessionRepository.getByField("user", users);
 		return (Map<U, List<SessionGae>>) UserSessionLookup.from(sessions);
 	}
 
 	@Override
 	public List<SessionGae> deleteFor(User user) {
 		List<SessionGae> sessions = listSessions(user);
-		List<SessionId> sessionIds = sessionIdRepository.loadByField("session", sessions);
-		sessionIdRepository.delete(sessionIds).complete();
-		sessionRepository.delete(sessions).complete();
+		List<SessionId> sessionIds = sessionIdRepository.getByField("session", sessions);
+		sessionIdRepository.delete(sessionIds);
+		sessionRepository.delete(sessions);
 		return sessions;
 	}
 

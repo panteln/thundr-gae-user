@@ -17,10 +17,10 @@
  */
 package com.threewks.thundr.user.gae;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,9 +35,11 @@ import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.gae.objectify.Refs;
 import com.threewks.thundr.search.SearchId;
 import com.threewks.thundr.search.SearchIndex;
 import com.threewks.thundr.user.Organisation;
+import com.threewks.thundr.user.Roles;
 
 @Entity(name = "thundrUser")
 public class UserGae implements com.threewks.thundr.user.User {
@@ -84,13 +86,21 @@ public class UserGae implements com.threewks.thundr.user.User {
 
 	public UserGae(String username, Organisation organisation) {
 		this.username = StringUtils.trimToEmpty(username);
-		this.organisation = organisation == null ? null : Ref.create(organisation);
+		this.organisation = Refs.ref(organisation);
 		this.createdAt = new DateTime().getMillis();
 	}
 
-	@Override
 	public Organisation getOrganistion() {
-		return organisation == null ? null : organisation.get();
+		return Refs.unref(organisation);
+	}
+
+	public void setOrganisation(Organisation organisation) {
+		this.organisation = Refs.ref(organisation);
+	}
+
+	public UserGae withOrganisation(Organisation organisation) {
+		this.setOrganisation(organisation);
+		return this;
 	}
 
 	@Override
@@ -179,62 +189,85 @@ public class UserGae implements com.threewks.thundr.user.User {
 	}
 
 	@Override
-	public Set<String> getRoles() {
-		return roles;
+	public Roles getRoles() {
+		return new Roles(roles);
 	}
 
 	@Override
-	public void setRoles(Collection<String> roles) {
-		this.roles = new LinkedHashSet<>(roles);
+	public void setRoles(Roles roles) {
+		this.roles = roles.getRoles();
 	}
 
 	@Override
-	public boolean hasRole(String role) {
-		return roles.contains(role);
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		return result;
 	}
 
 	@Override
-	public boolean hasRoles(String... roles) {
-		return hasRoles(Arrays.asList(roles));
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserGae other = (UserGae) obj;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
+			return false;
+		return true;
 	}
 
-	@Override
-	public boolean hasRoles(Collection<String> roles) {
-		return this.roles.containsAll(roles);
-	}
-
-	@Override
-	public void addRole(String role) {
-		this.roles.add(role);
-	}
-
-	@Override
-	public void removeRole(String role) {
-		this.roles.remove(role);
+	public UserGae withRoles(Roles roles) {
+		this.setRoles(roles);
+		return this;
 	}
 
 	public void addAccount(AccountGae account) {
-		Key<AccountGae> ref = Key.create(account);
+		Key<AccountGae> ref = Refs.key(account);
 		if (!accounts.containsKey(ref)) {
-			accounts.put(ref, Collections.singleton("member"));
+			accounts.put(ref, Collections.singleton(Roles.Member));
 		}
 	}
 
 	public void removeAccount(AccountGae account) {
-		Ref<AccountGae> ref = Ref.create(account);
+		Ref<AccountGae> ref = Refs.ref(account);
 		accounts.remove(ref);
 	}
 
-	public Collection<Key<AccountGae>> getAccounts() {
-		return accounts.keySet();
+	public Collection<AccountGae> getAccounts() {
+		Set<Key<AccountGae>> keySet = accounts.keySet();
+		return Refs.unkey(keySet);
 	}
 
-	public Set<String> getRoles(AccountGae account) {
-		Ref<AccountGae> ref = Ref.create(account);
-		return accounts.get(ref);
+	public Roles getRoles(AccountGae account) {
+		Ref<AccountGae> ref = Refs.ref(account);
+		Set<String> set = accounts.get(ref);
+		return new Roles(set);
 	}
 
-	public void setRoles(AccountGae accountGae, Set<String> roles) {
-		this.accounts.put(Key.create(accountGae), roles);
+	public Map<AccountGae, Roles> getAllRoles() {
+		Map<AccountGae, Roles> result = new LinkedHashMap<>();
+		for (Map.Entry<Key<AccountGae>, Set<String>> entry : this.accounts.entrySet()) {
+			result.put(Refs.unkey(entry.getKey()), new Roles(entry.getValue()));
+		}
+		result.remove(null);
+		return result;
 	}
+
+	public void setRoles(AccountGae accountGae, Roles roles) {
+		Set<String> set = roles.getRoles();
+		this.accounts.put(Refs.key(accountGae), set);
+	}
+
+	public UserGae withRoles(AccountGae accountGae, Roles roles) {
+		this.setRoles(accountGae, roles);
+		return this;
+	}
+
 }

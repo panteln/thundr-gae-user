@@ -21,47 +21,48 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.gae.objectify.repository.Repository;
 import com.threewks.thundr.search.Is;
 import com.threewks.thundr.search.Search;
 import com.threewks.thundr.session.SessionService;
-import com.threewks.thundr.user.UserServiceImpl;
 import com.threewks.thundr.user.User;
+import com.threewks.thundr.user.UserServiceImpl;
 
-public class UserServiceGaeImpl extends UserServiceImpl<UserGae> implements UserServiceGae {
-	protected UserRepositoryGae<UserGae> userRepositoryGae;
+public class UserServiceGaeImpl<U extends UserGae, S extends SessionGae> extends UserServiceImpl<U, S> implements UserServiceGae<U, S> {
+	protected UserRepositoryGae<U> userRepositoryGae;
 
-	public UserServiceGaeImpl(UserRepositoryGae<UserGae> userRepository, SessionService sessionService) {
+	public UserServiceGaeImpl(UserRepositoryGae<U> userRepository, SessionService<S> sessionService) {
 		super(userRepository, sessionService);
 		this.userRepositoryGae = userRepository;
 	}
 
 	@Override
-	public UserGae get(String username) {
-		return userRepositoryGae.load(username);
+	public U get(String username) {
+		return userRepositoryGae.get(username);
 	}
 
 	@Override
-	public UserGae put(UserGae user) {
-		return userRepositoryGae.save(user).complete();
+	public U put(U user) {
+		return ((Repository<U, String>)userRepositoryGae).put(user);
 	}
 
 	@Override
 	public boolean delete(String username) {
 		User user = get(username);
 		if (user != null) {
-			userRepositoryGae.deleteByKey(username).complete();
+			userRepositoryGae.deleteByKey(username);
 		}
 		return user != null;
 	}
 
 	@Override
-	public List<UserGae> search(String email, int limit) {
-		Search<UserGae, String> query = buildSearch(email, limit);
+	public List<U> search(String email, int limit) {
+		Search<U, String> query = buildSearch(email, limit);
 		return query.run().getResults();
 	}
 
-	Search<UserGae, String> buildSearch(String email, int limit) {
-		Search<UserGae, String> query = userRepositoryGae.search();
+	Search<U, String> buildSearch(String email, int limit) {
+		Search<U, String> query = userRepositoryGae.search();
 
 		if (StringUtils.isNotBlank(email)) {
 			query = query.field(UserGae.Fields.Email, Is.Is, email);

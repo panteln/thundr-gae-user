@@ -15,36 +15,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.user.gae;
+package com.threewks.thundr.user.passwordreset;
 
 import java.util.UUID;
 
-import com.googlecode.objectify.Ref;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
-@Entity(name = "thundrSessionId")
-public class SessionId {
+@Entity
+public class PasswordResetGae implements PasswordReset {
 	@Id
-	private String id;
+	protected String uuid;
 	@Index
-	private Ref<SessionGae> session;
+	protected String email;
+	@Index
+	protected DateTime created;
 
-	public SessionId() {
+	protected PasswordResetGae() {
 
 	}
 
-	public SessionId(SessionGae session) {
-		this.id = UUID.randomUUID().toString();
-		this.session = Ref.create(session);
+	public PasswordResetGae(String email) {
+		super();
+		this.uuid = UUID.randomUUID().toString();
+		this.email = email;
+		this.created = new DateTime();
 	}
 
-	public String getId() {
-		return id;
+	@Override
+	public UUID getId() {
+		return UUID.fromString(uuid);
 	}
 
-	public SessionGae getSession() {
-		return session == null ? null : session.get();
+	@Override
+	public DateTime getCreated() {
+		return created;
+	}
+
+	@Override
+	public String getEmail() {
+		return email;
+	}
+
+	@Override
+	public boolean isExpired(Duration duration) {
+		return created != null && created.plus(duration).isBeforeNow();
 	}
 }

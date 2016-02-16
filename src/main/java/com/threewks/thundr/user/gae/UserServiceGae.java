@@ -19,12 +19,12 @@ package com.threewks.thundr.user.gae;
 
 import java.util.List;
 
-public interface UserServiceGae extends com.threewks.thundr.user.UserService<UserGae> {
-	public UserGae get(String username);
+public interface UserServiceGae<U extends UserGae, S extends SessionGae> extends com.threewks.thundr.user.UserService<U, S> {
+	public U get(String username);
 
-	public UserGae put(UserGae user);
+	public U put(U user);
 
 	public boolean delete(String username);
 
-	public List<UserGae> search(String email, int limit);
+	public List<U> search(String email, int limit);
 }

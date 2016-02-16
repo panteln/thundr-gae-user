@@ -15,36 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.user.gae;
+package com.threewks.thundr.user.passwordreset;
 
 import java.util.UUID;
 
-import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
+import com.threewks.thundr.gae.objectify.repository.UuidRepository;
 
-@Entity(name = "thundrSessionId")
-public class SessionId {
-	@Id
-	private String id;
-	@Index
-	private Ref<SessionGae> session;
+public class PasswordResetRepositoryGae extends UuidRepository<PasswordResetGae> implements PasswordResetRepository {
 
-	public SessionId() {
-
+	public PasswordResetRepositoryGae() {
+		super(PasswordResetGae.class, null);
 	}
 
-	public SessionId(SessionGae session) {
-		this.id = UUID.randomUUID().toString();
-		this.session = Ref.create(session);
+	@Override
+	public PasswordReset create(String email) {
+		PasswordResetGae passwordReset = createPasswordReset(email);
+		put(passwordReset);
+		return passwordReset;
 	}
 
-	public String getId() {
-		return id;
+	@Override
+	public PasswordReset getPasswordReset(UUID id) {
+		return get(id);
 	}
 
-	public SessionGae getSession() {
-		return session == null ? null : session.get();
+	@Override
+	public void deletePasswordReset(UUID id) {
+		deleteByKey(id);
+	}
+
+	protected PasswordResetGae createPasswordReset(String email) {
+		return new PasswordResetGae(email);
 	}
 }

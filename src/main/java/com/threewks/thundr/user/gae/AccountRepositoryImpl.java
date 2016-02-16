@@ -17,24 +17,23 @@
  */
 package com.threewks.thundr.user.gae;
 
-import static com.atomicleopard.expressive.Expressive.list;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import com.googlecode.objectify.Key;
-import com.threewks.thundr.gae.objectify.repository.StringRepository;
+import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.gae.objectify.repository.Repository;
+import com.threewks.thundr.gae.objectify.repository.UuidRepository;
 import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.user.AccountRepository;
+import com.threewks.thundr.user.OrganisationAccountRepository;
 import com.threewks.thundr.user.Roles;
-import com.threewks.thundr.user.RolesImpl;
 
-public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> implements AccountRepository<A, U> {
+public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae, O extends OrganisationGae> implements AccountRepository<A, U>, OrganisationAccountRepository<A, O> {
 
-	private StringRepository<A> delegateRepository;
+	private UuidRepository<A> delegateRepository;
 	private UserRepositoryGae<U> userRepository;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -43,13 +42,13 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 	}
 
 	public AccountRepositoryImpl(Class<A> entityType, UserRepositoryGae<U> userRepository, SearchConfig searchConfig) {
-		this.delegateRepository = new StringRepository<>(entityType, searchConfig);
+		this.delegateRepository = new UuidRepository<>(entityType, searchConfig);
 		this.userRepository = userRepository;
 	}
 
 	@Override
 	public A put(A account) {
-		delegateRepository.save(account).complete();
+		delegateRepository.put(account);
 		return account;
 	}
 
@@ -61,29 +60,29 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 	@Override
 	public A delete(A account) {
 		List<String> usernames = account.getUsernames();
-		List<U> users = userRepository.load(usernames);
+		List<U> users = userRepository.get(usernames);
 		for (U user : users) {
 			user.removeAccount(account);
 		}
 		// Order of these is important
-		delegateRepository.delete(account).complete();
-		userRepository.save(users).complete();
+		delegateRepository.delete(account);
+		userRepository.put(users);
 		return account;
 	}
 
 	@Override
 	public Roles getRoles(A account, U user) {
-		return new RolesImpl(user.getRoles(account));
+		return user.getRoles(account);
 	}
 
 	@Override
 	public Roles putRoles(A account, U user, Roles roles) {
-		user.setRoles(account, roles.getRoles());
-		account.addUser(user);
+		user.setRoles(account, roles);
 		boolean updateAccount = !account.hasUser(user);
-		userRepository.save(user).complete();
+		account.addUser(user);
+		put(user);
 		if (updateAccount) {
-			delegateRepository.save(account).complete();
+			delegateRepository.put(account);
 		}
 		return roles;
 	}
@@ -92,24 +91,25 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 	public A addUserToAccount(U user, A account) {
 		account.addUser(user);
 		user.addAccount(account);
-		userRepository.save(user).complete();
-		delegateRepository.save(account).complete();
+		put(user);
+		delegateRepository.put(account);
 		return account;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<A> getAccounts(U user) {
 		// TODO - Enhancement: Given the potential for writes across entity groups to fail,
 		// we could validate the returned accounts have the username in their set of users
 		// to ensure a consistent view.
-		Collection<Key<AccountGae>> accounts = user.getAccounts();
-		return (List) list(ofy().load().keys(accounts).values()).removeItems((AccountGae) null);
+		Collection<AccountGae> accounts = user.getAccounts();
+		return (List<A>) Expressive.list(accounts).removeItems((AccountGae) null);
 	}
 
 	@Override
 	public List<U> getUsers(A account) {
 		List<String> usernames = account.getUsernames();
-		return userRepository.load(usernames);
+		return userRepository.get(usernames);
 	}
 
 	@Override
@@ -117,17 +117,17 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 		List<U> users = getUsers(account);
 		Map<U, Roles> results = new LinkedHashMap<>();
 		for (U user : users) {
-			results.put(user, new RolesImpl(user.getRoles(account)));
+			results.put(user, user.getRoles(account));
 		}
 		return results;
 	}
 
 	@Override
-	public A getAccount(String accountId) {
-		return delegateRepository.load(accountId);
+	public A get(UUID accountId) {
+		return delegateRepository.get(accountId);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void removeUsersFromAccount(A account, List<U> users) {
 		account.removeUsers((List) users);
@@ -135,8 +135,8 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 			user.removeAccount(account);
 		}
 		// Order here is important
-		delegateRepository.save(account).complete();
-		userRepository.save(users).complete();
+		delegateRepository.put(account);
+		userRepository.put(users);
 	}
 
 	@Override
@@ -146,9 +146,27 @@ public class AccountRepositoryImpl<A extends AccountGae, U extends UserGae> impl
 			user.removeAccount(account);
 		}
 		// Order is important
-		delegateRepository.save(accounts).complete();
-		userRepository.save(user).complete();
+		delegateRepository.put(accounts);
+		put(user);
 
 	}
 
+	@Override
+	public List<A> list() {
+		return delegateRepository.list(200);
+	}
+
+	@Override
+	public List<A> list(O organisation) {
+		return delegateRepository.getByField("organisation", organisation);
+	}
+
+	@Override
+	public O getOrganisation(A account) {
+		return (O) account.getOrganisation();
+	}
+
+	protected void put(U user) {
+		((Repository<U, String>) userRepository).put(user);
+	}
 }
