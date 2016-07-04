@@ -43,9 +43,9 @@ public class UserGaeModule extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
-		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 		dependencyRegistry.addDependency(GaeModule.class);
 		dependencyRegistry.addDependency(ObjectifyModule.class);
+		dependencyRegistry.addDependency(com.threewks.thundr.user.UserModule.class);
 	}
 
 	@Override

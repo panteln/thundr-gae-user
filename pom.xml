@@ -2,10 +2,10 @@
 	<parent>
 		<groupId>com.threewks.thundr</groupId>
 		<artifactId>thundr-module</artifactId>
-		<version>3.0.0-beta-3-SNAPSHOT</version>
+		<version>3.0.0-rc2-SNAPSHOT</version>
 	</parent>
 	<artifactId>thundr-gae-user</artifactId>
-	<version>3.0.0-beta-3-SNAPSHOT</version>
+	<version>3.0.0-rc2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>thundr-gae-user</name>
 	<description>A thundr module for supporting basic user accounts on thundr-gae</description>

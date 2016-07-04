@@ -88,9 +88,11 @@ public class SessionRepositoryGae implements SessionRepository<SessionGae> {
 	@Override
 	public List<SessionGae> deleteFor(User user) {
 		List<SessionGae> sessions = listSessions(user);
-		List<SessionId> sessionIds = sessionIdRepository.getByField("session", sessions);
-		sessionIdRepository.delete(sessionIds);
-		sessionRepository.delete(sessions);
+		if (!sessions.isEmpty()) {
+			List<SessionId> sessionIds = sessionIdRepository.getByField("session", sessions);
+			sessionIdRepository.delete(sessionIds);
+			sessionRepository.delete(sessions);
+		}
 		return sessions;
 	}
 

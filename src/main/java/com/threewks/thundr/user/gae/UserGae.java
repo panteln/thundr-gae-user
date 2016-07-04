@@ -68,8 +68,6 @@ public class UserGae implements com.threewks.thundr.user.User {
 	@SearchIndex
 	protected Set<String> roles = new LinkedHashSet<>();
 
-	protected String hashedPassword;
-	protected byte[] salt;
 	protected Long lastLogin;
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
@@ -141,10 +139,6 @@ public class UserGae implements com.threewks.thundr.user.User {
 	public UserGae withEmail(String email) {
 		this.email = email;
 		return this;
-	}
-
-	public String getHashedPassword() {
-		return hashedPassword;
 	}
 
 	@Override
