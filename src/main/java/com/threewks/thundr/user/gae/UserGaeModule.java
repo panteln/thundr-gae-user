@@ -71,8 +71,8 @@ public class UserGaeModule extends BaseModule {
 		UserService<UserGae, SessionGae> userService = injectionContext.get(UserService.class);
 		SessionService<SessionGae> sessionService = injectionContext.get(SessionService.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
-		UserBinder<UserGae, SessionGae> userActionMethodBinder = new UserBinder<>(userService, sessionService);
-		binderRegistry.add(userActionMethodBinder);
+		UserBinder<UserGae, SessionGae> userBinder = new UserBinder<>(userService, sessionService);
+		binderRegistry.add(userBinder);
 	}
 
 	private void configureObjectify(UpdatableInjectionContext injectionContext) {
