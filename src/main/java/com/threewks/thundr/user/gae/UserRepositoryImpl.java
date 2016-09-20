@@ -51,12 +51,6 @@ public class UserRepositoryImpl<U extends UserGae> extends StringRepository<U> i
 	}
 
 	@Override
-	public U put(U user) {
-		ofy().save().entity(user).now();
-		return user;
-	}
-
-	@Override
 	public List<U> list() {
 		return list(200);
 	}

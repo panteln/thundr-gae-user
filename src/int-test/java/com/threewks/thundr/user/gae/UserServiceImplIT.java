@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.threewks.thundr.gae.SetupAppengine;
+import com.threewks.thundr.gae.objectify.ObjectifyModule;
 import com.threewks.thundr.gae.objectify.SetupObjectify;
 import com.threewks.thundr.search.gae.SearchConfig;
 import com.threewks.thundr.search.gae.mediator.FieldMediatorSet;
@@ -36,40 +37,42 @@ import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserServiceImplIT {
 
-	@Rule
-	public SetupAppengine setupAppengine = new SetupAppengine();
-	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, SessionId.class, PasswordAuthentication.class);
+    @Rule
+    public SetupAppengine setupAppengine = new SetupAppengine();
+    @Rule
+    public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, SessionGae.class, SessionId.class, PasswordAuthentication.class);
 
-	private String username = "username";
-	private UserServiceGaeImpl<UserGae, SessionGae> service;
-	private UserGae user;
-	private PasswordAuthentication password;
-	private SessionRepositoryGae sessionRepository;
-	private SessionService<SessionGae> sessionService;
+    private String username = "username";
+    private UserServiceGaeImpl<UserGae, SessionGae> service;
+    private UserGae user;
+    private PasswordAuthentication password;
+    private SessionRepositoryGae sessionRepository;
+    private SessionService<SessionGae> sessionService;
 
-	@Before
-	public void before() {
-		user = new UserGae(username);
-		password = new PasswordAuthentication(username, "password");
+    @Before
+    public void before() {
+        user = new UserGae(username);
+        password = new PasswordAuthentication(username, "password");
 
-		sessionRepository = new SessionRepositoryGae();
-		sessionService = new SessionServiceImpl<>(sessionRepository);
-		UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, new SearchConfig(TransformerManager.createWithDefaults(), new FieldMediatorSet(),
-				new IndexTypeLookup()));
-		service = new UserServiceGaeImpl<>(userRepository, sessionService);
-	}
+        sessionRepository = new SessionRepositoryGae();
+        sessionService = new SessionServiceImpl<>(sessionRepository);
+        TransformerManager transformerManager = TransformerManager.createWithDefaults();
+        ObjectifyModule.enhance(transformerManager);
 
-	@Test
-	public void shouldCreateAndLoginUserWithPassword() {
+        UserRepositoryImpl<UserGae> userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, new SearchConfig(transformerManager, new FieldMediatorSet(), new IndexTypeLookup()));
+        service = new UserServiceGaeImpl<>(userRepository, sessionService);
+    }
 
-		service.put(user, password);
+    @Test
+    public void shouldCreateAndLoginUserWithPassword() {
 
-		assertThat(service.get(username), is(notNullValue()));
+        service.put(user, password);
 
-		SessionGae session = sessionRepository.create();
-		UserGae u = service.login(session, new PasswordAuthentication(username, "password"), "password");
-		assertThat(u, is(user));
-		assertThat(session.isAuthenticated(), is(true));
-	}
+        assertThat(service.get(username), is(notNullValue()));
+
+        SessionGae session = sessionRepository.create();
+        UserGae u = service.login(session, new PasswordAuthentication(username, "password"), "password");
+        assertThat(u, is(user));
+        assertThat(session.isAuthenticated(), is(true));
+    }
 }

@@ -18,8 +18,12 @@
 package com.threewks.thundr.user.gae;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,62 +35,86 @@ import com.threewks.thundr.user.authentication.Authentication;
 import com.threewks.thundr.user.gae.authentication.PasswordAuthentication;
 
 public class UserRepositoryIT {
-	@Rule
-	public SetupAppengine setupAppengine = new SetupAppengine();
-	@Rule
-	public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, PasswordAuthentication.class);
+    @Rule
+    public SetupAppengine setupAppengine = new SetupAppengine();
+    @Rule
+    public SetupObjectify setupObjectify = new SetupObjectify(UserGae.class, PasswordAuthentication.class);
 
-	private UserRepositoryImpl<UserGae> userRepository;
-	
-	@Before
-	public void before() {
-		 userRepository  = new UserRepositoryImpl<UserGae>(UserGae.class, null);
-	}
+    private UserRepositoryImpl<UserGae> userRepository;
 
-	@Test
-	public void shouldPutAuthentication() {
-		UserGae user = new UserGae("username");
-		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
-		userRepository.putAuthentication(user, authentication);
+    @Before
+    public void before() {
+        userRepository = new UserRepositoryImpl<UserGae>(UserGae.class, null);
+    }
 
-		UserGae savedUser = ofy().load().type(UserGae.class).id("username").now();
-		assertThat(savedUser, is(notNullValue()));
-		PasswordAuthentication savedAuth = ofy().load().type(PasswordAuthentication.class).id("username").now();
-		assertThat(savedAuth.getHashedpassword(), is(authentication.getHashedpassword()));
-	}
-	
-	@Test
-	public void shouldRemoveAuthentication() {
-		UserGae user = new UserGae("username");
-		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
-		userRepository.putAuthentication(user, authentication);
-		
-		assertThat(ofy().load().type(PasswordAuthentication.class).id("username").now(), is(notNullValue()));
-		userRepository.removeAuthentication(authentication);
-		
-		assertThat(ofy().load().type(PasswordAuthentication.class).id("username").now(), is(nullValue()));
-	}
-	
-	@Test
-	public void shouldGetUserForAuthentication() {
-		UserGae user = new UserGae("username");
-		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
-		userRepository.putAuthentication(user, authentication);
-		
-		UserGae found = userRepository.getUser(authentication);
-		assertThat(found, is(notNullValue()));
-		assertThat(found, is(user));
-	}
-	
-	@Test
-	public void shouldGetExistingAuthenticationForGivenAuthentication() {
-		UserGae user = new UserGae("username");
-		PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
-		userRepository.putAuthentication(user, authentication);
-		
-		Authentication found = userRepository.getAuthentication(new PasswordAuthentication("username", "junk"));
-		assertThat(found, is(notNullValue()));
-		assertThat(found, is((Authentication)authentication));
-	}
+    @Test
+    public void shouldPutAuthentication() {
+        UserGae user = new UserGae("username");
+        PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
+        userRepository.putAuthentication(user, authentication);
+
+        UserGae savedUser = ofy().load()
+                                 .type(UserGae.class)
+                                 .id("username")
+                                 .now();
+        assertThat(savedUser, is(notNullValue()));
+        PasswordAuthentication savedAuth = ofy().load()
+                                                .type(PasswordAuthentication.class)
+                                                .id("username")
+                                                .now();
+        assertThat(savedAuth.getHashedpassword(), is(authentication.getHashedpassword()));
+    }
+
+    @Test
+    public void shouldRemoveAuthentication() {
+        UserGae user = new UserGae("username");
+        PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
+        userRepository.putAuthentication(user, authentication);
+
+        assertThat(ofy().load()
+                        .type(PasswordAuthentication.class)
+                        .id("username")
+                        .now(),
+                is(notNullValue()));
+        userRepository.removeAuthentication(authentication);
+
+        assertThat(ofy().load()
+                        .type(PasswordAuthentication.class)
+                        .id("username")
+                        .now(),
+                is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetUserForAuthentication() {
+        UserGae user = new UserGae("username");
+        PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
+        userRepository.putAuthentication(user, authentication);
+
+        UserGae found = userRepository.getUser(authentication);
+        assertThat(found, is(notNullValue()));
+        assertThat(found, is(user));
+    }
+
+    @Test
+    public void shouldGetExistingAuthenticationForGivenAuthentication() {
+        UserGae user = new UserGae("username");
+        PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
+        userRepository.putAuthentication(user, authentication);
+
+        Authentication found = userRepository.getAuthentication(new PasswordAuthentication("username", "junk"));
+        assertThat(found, is(notNullValue()));
+        assertThat(found, is((Authentication) authentication));
+    }
+
+    @Test
+    public void shouldPutUserDelegatingToSuperSoThatSearchIndexWritesHappenCorrectly() {
+        userRepository = spy(userRepository);
+        UserGae user = new UserGae("username");
+        PasswordAuthentication authentication = new PasswordAuthentication("username", "password");
+        userRepository.putAuthentication(user, authentication);
+
+        verify(userRepository).putAsync(user);
+    }
 
 }
