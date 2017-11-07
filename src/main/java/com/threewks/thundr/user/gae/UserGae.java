@@ -72,6 +72,7 @@ public class UserGae implements com.threewks.thundr.user.User {
 	protected Long createdAt;
 	protected Map<String, String> props = new HashMap<>();
 	@Index
+	@SearchIndex
 	protected Ref<Organisation> organisation;
 	protected Map<Key<AccountGae>, Set<String>> accounts = new HashMap<>();
 
